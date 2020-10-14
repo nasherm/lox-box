@@ -1,6 +1,6 @@
-from TokenType import TokenType, simpleCharsMap, maybeTwoCharacterMap, whiteSpaceMap
-from Token import Token
-from Util import *
+from src.plox.TokenType import *
+from src.plox.Token import Token
+from src.plox.Util import error
 
 class Scanner:
     def __init__(self, source: str):
@@ -9,6 +9,24 @@ class Scanner:
         self.start = 0
         self.current = 0
         self.line = 1
+        self.keywords = {
+            "and": TokenType.AND,
+            "class":TokenType.CLASS,
+            "else": TokenType.ELSE,
+            "false":TokenType.FALSE,
+            "for":TokenType.FOR,
+            "fun": TokenType.FUN,
+            "if": TokenType.IF,
+            "nil": TokenType.NIL,
+            "or": TokenType.OR,
+            "print": TokenType.PRINT,
+            "return": TokenType.RETURN,
+            "super": TokenType.SUPER,
+            "this": TokenType.THIS,
+            "true": TokenType.TRUE,
+            "var": TokenType.VAR,
+            "while": TokenType.WHILE
+        }
 
     def isAtEnd(self):
         return self.current >= len(self.source)
@@ -17,7 +35,7 @@ class Scanner:
         while not self.isAtEnd():
             self.start = self.current
             self.scanToken()
-        self.tokens.add(Token(TokenType.EOF, "", None, self.line))
+        self.tokens.append(Token(TokenType.EOF, "", None, self.line))
         return self.tokens
 
     def scanToken(self):
@@ -43,6 +61,12 @@ class Scanner:
             self.line += 1
         elif _whiteSpace.get(char):
             pass
+        elif char == '"':
+            self.string()
+        elif self.isDigit(char):
+            self.number()
+        elif self.isAlpha(char):
+            self.identifier()
         else:
             error(self.line, "Unexpected character.")
 
@@ -55,12 +79,63 @@ class Scanner:
 
     def advance(self):
         self.current += 1
-        return source[self.current - 1]
+        return self.source[self.current - 1]
 
     def addToken(self, tokenType: TokenType, literal=None):
-        text = source[self.start:start.current]
+        text = self.source[self.start:self.current]
         self.tokens.append(Token(tokenType, text, literal, self.line))
 
     def peek(self):
-        if self.isAtEnd: return '\0'
+        if self.isAtEnd(): return '\0'
         return self.source[self.current]
+
+    def string(self):
+        while (self.peek() != '"') and (not self.isAtEnd()):
+            if self.peek() == '\n':
+                self.line += 1;
+            self.advance()
+
+        if self.isAtEnd():
+            error(self.line, "Unterminated string")
+            return
+
+        # closing comma
+        self.advance()
+
+        value = self.source[self.start:self.current]
+        self.addToken(TokenType.STRING, value)
+
+    def isDigit(self, char: chr):
+        return ord('0') <= ord(char) <= ord('9')
+
+    def number(self):
+        while self.isDigit(self.peek()):
+            self.advance()
+
+        if (self.peek() == '.') and self.isDigit(self.peekNext()):
+            self.advance()
+            while self.isDigit(self.peek()):
+                self.advance()
+
+        self.addToken(TokenType.NUMBER, float(self.source[self.start:self.current]))
+
+    def peekNext(self) -> chr:
+        if self.current + 1 >= len(self.source):
+            return '\0'
+        return self.source[self.current + 1]
+
+    def identifier(self):
+        while self.isAlphaNumeric(self.peek()):
+            self.advance()
+
+        text = self.source[self.start:self.current]
+        type = self.keywords.get(text, TokenType.IDENTIFIER)
+        self.addToken(type)
+
+    def isAlpha(self, char: chr):
+        return (ord('a') <= ord(char) <= ord('z'))\
+               or (ord('A') <= ord(char) <= ord('Z'))\
+               or (ord(char) == ord('_'))
+
+    def isAlphaNumeric(self, char: chr):
+        return self.isAlpha(char) or self.isDigit(char)

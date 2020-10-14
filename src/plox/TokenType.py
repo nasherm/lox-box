@@ -1,6 +1,5 @@
 from enum import Enum
 
-@unique
 class TokenType(Enum):
   # Single-character tokens.
   LEFT_PAREN = 1
@@ -70,9 +69,11 @@ def maybeTwoCharacterMap():
     d['='] = (TokenType.EQUAL, TokenType.EQUAL_EQUAL)
     d['<'] = (TokenType.LESS, TokenType.LESS_EQUAL)
     d['>'] = (TokenType.GREATER, TokenType.GREATER_EQUAL)
+    return d
 
 def whiteSpaceMap():
     d = dict()
     d[' '] = None
     d['\r'] = None
     d['\t'] = None
+    return d

@@ -12,5 +12,5 @@ class Token:
         self.line = line
 
     def toString(self):
-        return f"{type} {lexeme} {literal}"
+        return f"{self.type} lexeme={self.lexeme} {self.literal}"
 

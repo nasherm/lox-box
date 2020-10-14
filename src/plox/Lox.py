@@ -1,6 +1,5 @@
 import sys
-from Util import *
-from Scanner import Scanner
+from src.plox.Scanner import Scanner
 
 class Lox:
     def __init__(self):
@@ -24,7 +23,7 @@ class Lox:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
         for token in tokens:
-            print(token)
+            print(token.toString())
 
 if __name__ == "__main__":
     args = sys.argv
