@@ -1,6 +1,6 @@
-from src.plox.TokenType import *
-from src.plox.Token import Token
-from src.plox.Util import error
+from plox.plox.TokenType import *
+from plox.plox.Token import Token
+from plox.plox.Util import error
 
 class Scanner:
     def __init__(self, source: str):

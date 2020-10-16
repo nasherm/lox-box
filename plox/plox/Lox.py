@@ -1,5 +1,5 @@
 import sys
-from src.plox.Scanner import Scanner
+from plox.plox.Scanner import Scanner
 
 class Lox:
     def __init__(self):
