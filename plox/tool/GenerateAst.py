@@ -47,7 +47,7 @@ class GenerateAst:
         fileWriter.write('class Visitor:\n')
         for type in types:
             typeName = type.split(';')[0].strip()
-            fileWriter.write(f'\tdef visit{typeName}{baseName}(self,{typeName}{baseName.lower()}:Expr): pass\n')
+            fileWriter.write(f'\tdef visit{typeName}{baseName}(self,{baseName.lower()}:{baseName}): pass\n')
         fileWriter.write('\n')
 
 GenerateAst().run()

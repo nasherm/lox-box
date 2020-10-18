@@ -1,5 +1,3 @@
-from TokenType import TokenType
-
 class Token:
     def __init__(self,
                  type=None,

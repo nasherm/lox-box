@@ -4,10 +4,10 @@ class Expr:
 	pass
 	def accept(self,visitor): pass
 class Visitor:
-	def visitBinaryExpr(self,Binaryexpr:Expr): pass
-	def visitGroupingExpr(self,Groupingexpr:Expr): pass
-	def visitLiteralExpr(self,Literalexpr:Expr): pass
-	def visitUnaryExpr(self,Unaryexpr:Expr): pass
+	def visitBinaryExpr(self,expr:Expr): pass
+	def visitGroupingExpr(self,expr:Expr): pass
+	def visitLiteralExpr(self,expr:Expr): pass
+	def visitUnaryExpr(self,expr:Expr): pass
 
 class Binary(Expr):
 	def __init__(self,left:Expr, operator:Token, right:Expr):
