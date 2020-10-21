@@ -87,7 +87,7 @@ def maybeTwoCharacterMap():
 
 def whiteSpaceMap():
     d = dict()
-    d[' '] = None
-    d['\r'] = None
-    d['\t'] = None
+    d[' '] = True
+    d['\r'] = True
+    d['\t'] = True
     return d

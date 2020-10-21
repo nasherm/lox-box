@@ -96,7 +96,7 @@ class Parser:
             self.consume(TokenType.RIGHT_PAREN, 'Expect `)` after expression')
             return Grouping(expr)
 
-        raise self.error(self.peek(), 'Expect expression')
+        raise self.error(self.peek(), '<Parsing>Expect expression')
 
     def match(self, *types):
         for type in types:

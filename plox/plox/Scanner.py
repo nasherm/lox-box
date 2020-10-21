@@ -67,7 +67,7 @@ class Scanner:
         elif self.isAlpha(char):
             self.identifier()
         else:
-            atLineError(self.line, "Unexpected character.")
+            atLineError(self.line, "<Scanning>Unexpected character.")
 
     def match(self, expected):
         if self.isAtEnd(): return False
@@ -95,7 +95,7 @@ class Scanner:
             self.advance()
 
         if self.isAtEnd():
-            atLineError(self.line, "Unterminated string")
+            atLineError(self.line, "<Scanning>Unterminated string")
             return
 
         # closing comma
