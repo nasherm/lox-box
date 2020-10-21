@@ -1,5 +1,9 @@
 import sys
 from plox.plox.Scanner import Scanner
+from plox.plox.TokenType import *
+from plox.plox.Util import *
+from plox.plox.Parser import Parser
+from plox.plox.AstPrinter import AstPrinter
 
 class Lox:
     def __init__(self):
@@ -22,8 +26,11 @@ class Lox:
     def run(self, source: str):
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
-        for token in tokens:
-            print(token.toString())
+        parser = Parser(tokens)
+        expr = parser.parse()
+        if expr:
+            astPrinter = AstPrinter()
+            print(astPrinter.print(expr))
 
 if __name__ == "__main__":
     args = sys.argv
@@ -35,3 +42,4 @@ if __name__ == "__main__":
         lox.runFile(args[0])
     else:
         lox.runPrompt()
+

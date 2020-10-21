@@ -22,7 +22,7 @@ class GenerateAst:
         path = f'{self.outputDir}/{baseName}.py'
         fileWriter = open(path, 'w')
         fileWriter.write('from typing import Any\n')
-        fileWriter.write('from plox.plox.Token import Token\n')
+        fileWriter.write('from plox.plox.TokenType import Token\n')
         fileWriter.write(f'class {baseName}:\n\tpass\n')
         fileWriter.write(f'\tdef accept(self,visitor): pass\n')
         self.defineVisitor(fileWriter, baseName, types)

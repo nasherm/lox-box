@@ -1,6 +1,4 @@
 from plox.tool.Expr import *
-from plox.plox.Token import Token
-from plox.plox.TokenType import TokenType
 
 class AstPrinter(Visitor):
     def __init__(self):

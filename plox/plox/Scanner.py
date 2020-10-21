@@ -1,6 +1,5 @@
 from plox.plox.TokenType import *
-from plox.plox.Token import Token
-from plox.plox.Util import error
+from plox.plox.Util import atLineError
 
 class Scanner:
     def __init__(self, source: str):
@@ -68,7 +67,7 @@ class Scanner:
         elif self.isAlpha(char):
             self.identifier()
         else:
-            error(self.line, "Unexpected character.")
+            atLineError(self.line, "Unexpected character.")
 
     def match(self, expected):
         if self.isAtEnd(): return False
@@ -96,7 +95,7 @@ class Scanner:
             self.advance()
 
         if self.isAtEnd():
-            error(self.line, "Unterminated string")
+            atLineError(self.line, "Unterminated string")
             return
 
         # closing comma
