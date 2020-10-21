@@ -30,53 +30,55 @@ class Parser:
         return new_expr
 
     def equality(self):
-        # expr = self.comparison(self)
-        # while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
-        #     op = self.previous()
-        #     right = self.comparison
-        #     expr = Binary(expr, op, right)
-        # return expr
-        return self.parseLeftAssocBinaryExpr(
-            self.comparison,
-            Binary,
-            TokenType.BANG_EQUAL,
-            TokenType.EQUAL_EQUAL)
+        expr = self.comparison()
+        while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
+            op = self.previous()
+            right = self.comparison
+            expr = Binary(expr, op, right)
+        return expr
+
 
     def comparison(self):
-        # expr = self.term()
-        # while self.match(TokenType.GREATER,
-        #                  TokenType.GREATER_EQUAL,
-        #                  TokenType.LESS,
-        #                  TokenType.LESS_EQUAL):
-        #     operator = self.previous()
-        #     right = self.term()
-        #     expr = Binary(expr, operator, right)
-        #
-        # return expr
-        return self.parseLeftAssocBinaryExpr(
-            self.term,
-            Binary,
-            TokenType.GREATER,
-            TokenType.GREATER_EQUAL,
-            TokenType.LESS,
-            TokenType.LESS_EQUAL
-        )
+        expr = self.term()
+        while self.match(TokenType.GREATER,
+                         TokenType.GREATER_EQUAL,
+                         TokenType.LESS,
+                         TokenType.LESS_EQUAL):
+            operator = self.previous()
+            right = self.term()
+            expr = Binary(expr, operator, right)
+
+        return expr
 
     def term(self):
-        return self.parseLeftAssocBinaryExpr(
-            self.factor,
-            Binary,
-            TokenType.MINUS,
-            TokenType.PLUS
-        )
+        expr = self.factor()
+        while self.match(TokenType.PLUS, TokenType.MINUS):
+            op = self.previous()
+            right = self.factor()
+            expr = Binary(expr, op, right)
+
+        return expr
+        # return self.parseLeftAssocBinaryExpr(
+        #     self.factor,
+        #     Binary,
+        #     TokenType.MINUS,
+        #     TokenType.PLUS
+        # )
 
     def factor(self):
-        return self.parseLeftAssocBinaryExpr(
-            self.unary,
-            Binary,
-            TokenType.SLASH,
-            TokenType.STAR
-        )
+        expr = self.unary()
+        while self.match(TokenType.SLASH, TokenType.STAR):
+            op = self.previous()
+            right = self.unary()
+            expr = Binary(expr, op, right)
+
+        return expr
+        # return self.parseLeftAssocBinaryExpr(
+        #     self.unary,
+        #     Binary,
+        #     TokenType.SLASH,
+        #     TokenType.STAR
+        # )
 
     def unary(self):
         if self.match(TokenType.BANG, TokenType.MINUS):
@@ -93,10 +95,11 @@ class Parser:
             return Literal(self.previous().literal)
         if (self.match(TokenType.LEFT_PAREN)):
             expr = self.expression()
+            print(self.peek().type)
             self.consume(TokenType.RIGHT_PAREN, 'Expect `)` after expression')
             return Grouping(expr)
 
-        raise self.error(self.peek(), '<Parsing>Expect expression')
+        raise self.error(self.peek(), 'Expect expression')
 
     def match(self, *types):
         for type in types:
@@ -106,15 +109,17 @@ class Parser:
         return False
 
     def check(self, type: TokenType):
-        if self.isAtEnd(): return False
+        if self.isAtEnd():
+            return False
         return self.peek().type == type
 
     def consume(self, type: TokenType, message: str):
-        if self.check(type): return self.advance()
+        if self.check(type):
+            return self.advance()
         raise self.error(self.peek(), message)
 
     def error(self, token: Token, message: str):
-        Util.error(token, message)
+        Util.error(token, f'<Parsing>{message}')
         return ParseError()
 
     def synchronize(self):

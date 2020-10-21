@@ -5,6 +5,7 @@ class AstPrinter(Visitor):
         pass
 
     def print(self, expr: Expr):
+        print('I got this' + expr.__str__())
         return expr.accept(self)
 
     def visitBinaryExpr(self,expr:Binary):

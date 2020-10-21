@@ -26,8 +26,6 @@ class Lox:
     def run(self, source: str):
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
-        for t in tokens:
-            print(t.toString())
         parser = Parser(tokens)
         expr = parser.parse()
         if expr:
