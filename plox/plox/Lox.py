@@ -34,6 +34,8 @@ class Lox:
         parser = Parser(tokens)
         expr = parser.parse()
         if parser.hadError: return
+        # astPrinter = AstPrinter()
+        # astPrinter.print(expr)
         self.interpreter.interpret(expr)
 
 if __name__ == "__main__":

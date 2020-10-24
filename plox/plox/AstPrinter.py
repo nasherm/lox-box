@@ -5,8 +5,7 @@ class AstPrinter(Visitor):
         pass
 
     def print(self, expr: Expr):
-        print('I got this' + expr.__str__())
-        return expr.accept(self)
+        print('I got this ' + str(expr.accept(self)))
 
     def visitBinaryExpr(self,expr:Binary):
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)

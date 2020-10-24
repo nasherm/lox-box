@@ -12,7 +12,13 @@ class Token:
         self.line = line
 
     def toString(self):
-        return f"TYPE={self.type} LEXEME={self.lexeme} LITERAL={self.literal}"
+        return f"TYPE={self.type} LEXEME={self.lexeme} LITERAL={self.literal}\n"
+
+    def __str__(self):
+        return self.toString()
+
+    def __repr__(self):
+        return self.toString()
 
 class TokenType(Enum):
   # Single-character tokens.

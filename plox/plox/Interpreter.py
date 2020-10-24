@@ -10,6 +10,8 @@ class Interpreter(Visitor):
     def interpret(self, expr: Expr):
         try:
             value = self.evaluate(expr)
+            if isinstance(value, str):
+                value = f'"{value}"'
             print(value)
         except RuntimeError as e:
             runtimeError(e)
@@ -54,7 +56,6 @@ class Interpreter(Visitor):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
         opType = expr.operator.type
-
         if opType is TokenType.GREATER:
             self.checkNumberOperands(opType, left, right)
             return left > right
@@ -83,7 +84,8 @@ class Interpreter(Visitor):
             self.checkNumberOperands(opType, left, right)
             return left * right
         elif opType is TokenType.BANG_EQUAL:
-            return not left == right
+            # print(f"left == right = {left == right}")
+            return not (left == right)
         elif opType is TokenType.EQUAL_EQUAL:
-            return left == right
+            return (left == right)
 

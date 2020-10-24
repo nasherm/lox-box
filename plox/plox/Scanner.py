@@ -46,14 +46,15 @@ class Scanner:
             self.addToken(_charMap.get(char))
         elif _twoCharMap.get(char):
             (l, r) = _twoCharMap.get(char)
-            if self.match('='):
-                self.addToken(l)
+            if self.peekNext() == '=':
+                self.addToken(r, text=f'{char + "="}')
+                self.advance()
             else:
-                self.addToken(r)
+                self.addToken(l)
         elif char == '/':
             if self.match('/'):
                 while self.peek() != '\n' and (not self.isAtEnd):
-                    self.advance
+                    self.advance()
             else:
                 self.addToken(TokenType.SLASH)
         elif char == '\n':
@@ -80,8 +81,9 @@ class Scanner:
         self.current += 1
         return self.source[self.current - 1]
 
-    def addToken(self, tokenType: TokenType, literal=None):
-        text = self.source[self.start:self.current]
+    def addToken(self, tokenType: TokenType, literal=None, text=None):
+        if not text:
+            text = self.source[self.start:self.current]
         self.tokens.append(Token(tokenType, text, literal, self.line))
 
     def peek(self):
@@ -101,7 +103,7 @@ class Scanner:
         # closing comma
         self.advance()
 
-        value = self.source[self.start:self.current]
+        value = self.source[self.start+1:self.current-1]
         self.addToken(TokenType.STRING, value)
 
     def isDigit(self, char: chr):
@@ -121,7 +123,7 @@ class Scanner:
     def peekNext(self) -> chr:
         if self.current + 1 >= len(self.source):
             return '\0'
-        return self.source[self.current + 1]
+        return self.source[self.current]
 
     def identifier(self):
         while self.isAlphaNumeric(self.peek()):

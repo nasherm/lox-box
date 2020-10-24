@@ -15,6 +15,7 @@ class Parser:
 
     def parse(self):
         try:
+            # print(self.tokens)
             return self.expression()
         except ParseError:
             self.hadError = True
@@ -27,7 +28,7 @@ class Parser:
         expr = self.comparison()
         while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
             op = self.previous()
-            right = self.comparison
+            right = self.comparison()
             expr = Binary(expr, op, right)
         return expr
 
