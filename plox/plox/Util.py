@@ -1,5 +1,6 @@
 import sys
 from plox.plox.TokenType import *
+from plox.plox.RuntimeError import RuntimeError
 
 def errorPrint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -16,3 +17,6 @@ def error(token: Token, message: str):
         report(token.line, " at end", message)
     else:
         report(token.line, f"at'{token.lexeme}'", message)
+
+def runtimeError(error: RuntimeError):
+    print(f'{error.message}\n[line {error.token.line}+]')

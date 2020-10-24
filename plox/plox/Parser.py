@@ -1,33 +1,27 @@
 from typing import List
 from plox.tool.Expr import *
-from plox.plox.Scanner import *
 from plox.plox.TokenType import *
 import plox.plox.Util as Util
+
 class ParseError(Exception):
     def __init__(self):
-        pass
+        self.hadError = False
 
 class Parser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
+        self.hadError = False
 
     def parse(self):
         try:
             return self.expression()
         except ParseError:
+            self.hadError = True
             return None
 
     def expression(self) -> Expr:
         return self.equality()
-
-    def parseLeftAssocBinaryExpr(self, expr, recurse_expr, *matchArgs):
-        new_expr = expr()
-        while self.match(matchArgs):
-            op = self.previous()
-            right = expr()
-            new_expr = recurse_expr(new_expr, op, right)
-        return new_expr
 
     def equality(self):
         expr = self.comparison()
@@ -95,7 +89,6 @@ class Parser:
             return Literal(self.previous().literal)
         if (self.match(TokenType.LEFT_PAREN)):
             expr = self.expression()
-            print(self.peek().type)
             self.consume(TokenType.RIGHT_PAREN, 'Expect `)` after expression')
             return Grouping(expr)
 

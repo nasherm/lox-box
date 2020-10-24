@@ -4,16 +4,21 @@ from plox.plox.TokenType import *
 from plox.plox.Util import *
 from plox.plox.Parser import Parser
 from plox.plox.AstPrinter import AstPrinter
+from plox.plox.Interpreter import Interpreter
 
 class Lox:
     def __init__(self):
         self.hadError = False
+        self.hadRuntimeError = False
+        self.interpreter = Interpreter()
 
     def runFile(self, path: str):
         f = open(path, 'rb')
         self.run(str(f.read()))
         if self.hadError:
             sys.exit(65)
+        if self.hadRuntimeError:
+            sys.exit(70)
 
     def runPrompt(self):
         while True:
@@ -28,9 +33,8 @@ class Lox:
         tokens = scanner.scanTokens()
         parser = Parser(tokens)
         expr = parser.parse()
-        if expr:
-            astPrinter = AstPrinter()
-            print(astPrinter.print(expr))
+        if parser.hadError: return
+        self.interpreter.interpret(expr)
 
 if __name__ == "__main__":
     args = sys.argv
