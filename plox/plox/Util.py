@@ -19,4 +19,4 @@ def error(token: Token, message: str):
         report(token.line, f"at'{token.lexeme}'", message)
 
 def runtimeError(error: RuntimeError):
-    print(f'{error.message}\n[line {error.token.line}+]')
+    print(f'{error.message}\n')

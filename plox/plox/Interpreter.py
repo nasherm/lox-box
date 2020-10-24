@@ -79,6 +79,8 @@ class Interpreter(Visitor):
             return left + right
         elif opType is TokenType.SLASH:
             self.checkNumberOperands(opType, left, right)
+            if right == 0:
+                raise RuntimeError(opType, "Divide by zero is not allowed")
             return left / right
         elif opType is TokenType.STAR:
             self.checkNumberOperands(opType, left, right)
