@@ -14,16 +14,27 @@ class GenerateAst:
                "Unary    ; operator:Token, right:Expr"
            ])
 
+        self.defineAst(
+            "Stmt",
+            [
+                "Expression ; expression:Expr",
+                "Print      ; expression:Expr"
+            ],
+            imports=['plox.tool.Expr']
+        )
+
     def stripWhitespace(self, s: str):
         import re
         return re.sub('[s+]','', s)
 
-    def defineAst(self, baseName: str, types: list):
+    def defineAst(self, baseName: str, types: list, imports=list()):
         path = f'{self.outputDir}/{baseName}.py'
         fileWriter = open(path, 'w')
         fileWriter.write('from typing import Any\n')
         fileWriter.write('from plox.plox.TokenType import Token\n')
-        fileWriter.write(f'class {baseName}:\n\tpass\n')
+        for i in imports:
+            fileWriter.write(f'from {i} import *\n')
+        fileWriter.write(f'class {baseName}:\n\tdef init(self): pass\n')
         fileWriter.write(f'\tdef accept(self,visitor): pass\n')
         self.defineVisitor(fileWriter, baseName, types)
         for type in types:

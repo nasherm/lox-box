@@ -1,7 +1,7 @@
 from typing import Any
-from plox.plox.TokenType import *
+from plox.plox.TokenType import Token
 class Expr:
-	pass
+	def init(self): pass
 	def accept(self,visitor): pass
 class Visitor:
 	def visitBinaryExpr(self,expr:Expr): pass

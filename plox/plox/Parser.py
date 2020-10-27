@@ -2,6 +2,7 @@ from typing import List
 from plox.tool.Expr import *
 from plox.plox.TokenType import *
 import plox.plox.Util as Util
+from plox.tool.Stmt import *
 
 class ParseError(Exception):
     def __init__(self):
@@ -14,12 +15,25 @@ class Parser:
         self.hadError = False
 
     def parse(self):
-        try:
-            # print(self.tokens)
-            return self.expression()
-        except ParseError:
-            self.hadError = True
-            return None
+        statements = list()
+        while not self.isAtEnd():
+            statements.append(self.statement())
+        return statements
+
+    def statement(self):
+        if self.match(TokenType.PRINT):
+            return self.printStatement()
+        return self.expressionStatement()
+
+    def printStatement(self):
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return Print(value)
+
+    def expressionStatement(self):
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression")
+        return Expression(expr)
 
     def expression(self) -> Expr:
         return self.equality()
