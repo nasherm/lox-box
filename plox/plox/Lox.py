@@ -32,11 +32,11 @@ class Lox:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
         parser = Parser(tokens)
-        expr = parser.parse()
+        statements = parser.parse()
         if parser.hadError: return
         # astPrinter = AstPrinter()
         # astPrinter.print(expr)
-        self.interpreter.interpret(expr)
+        self.interpreter.interpret(statements)
 
 if __name__ == "__main__":
     args = sys.argv

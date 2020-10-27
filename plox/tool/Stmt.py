@@ -4,20 +4,20 @@ from plox.tool.Expr import *
 class Stmt:
 	def init(self): pass
 	def accept(self,visitor): pass
-class Visitor:
+class StmtVisitor:
 	def visitExpressionStmt(self,stmt:Stmt): pass
 	def visitPrintStmt(self,stmt:Stmt): pass
 
 class Expression(Stmt):
 	def __init__(self,expression:Expr):
 		self.expression = expression
-	def accept(self, visitor:Visitor):
+	def accept(self, visitor:StmtVisitor):
 		return visitor.visitExpressionStmt(self)
 
 class Print(Stmt):
 	def __init__(self,expression:Expr):
 		self.expression = expression
-	def accept(self, visitor:Visitor):
+	def accept(self, visitor:StmtVisitor):
 		return visitor.visitPrintStmt(self)
 
 

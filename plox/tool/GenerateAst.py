@@ -50,12 +50,12 @@ class GenerateAst:
         for field in fields.split(','):
             name = field.split(':')[0]
             fileWriter.write(f'\t\tself.{name} = {name}\n')
-        fileWriter.write(f'\tdef accept(self, visitor:Visitor):\n')
+        fileWriter.write(f'\tdef accept(self, visitor:{baseName}Visitor):\n')
         fileWriter.write(f'\t\treturn visitor.visit{className}{baseName}(self)\n')
         fileWriter.write('\n')
 
     def defineVisitor(self, fileWriter, baseName, types):
-        fileWriter.write('class Visitor:\n')
+        fileWriter.write(f'class {baseName}Visitor:\n')
         for type in types:
             typeName = type.split(';')[0].strip()
             fileWriter.write(f'\tdef visit{typeName}{baseName}(self,{baseName.lower()}:{baseName}): pass\n')

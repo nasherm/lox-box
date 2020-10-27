@@ -2,26 +2,42 @@ from plox.tool.Expr import *
 from plox.plox.TokenType import *
 from plox.plox.RuntimeError import *
 from plox.plox.Util import runtimeError
+from plox.tool.Stmt import *
+from typing import List
 
-class Interpreter(Visitor):
+class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.hadRuntimeError = False
 
-    def interpret(self, expr: Expr):
+    def interpret(self, statements: List[Stmt]):
         try:
-            value = self.evaluate(expr)
-            if isinstance(value, str):
-                value = f'"{value}"'
-            print(value)
+            # value = self.evaluate(expr)
+            # if isinstance(value, str):
+            #     value = f'"{value}"'
+            # print(value)
+            for stmt in statements:
+                self.execute(stmt)
         except RuntimeError as e:
             runtimeError(e)
             self.hadRuntimeError = True
+
+    def execute(self, statement: Stmt):
+        statement.accept(self)
 
     def visitLiteralExpr(self,expr: Literal):
         return expr.value
 
     def evaluate(self, expr: Expr):
         return expr.accept(self)
+
+    def visitExpressionStmt(self,stmt:Expression):
+        self.evaluate(stmt.expression)
+        return None
+
+    def visitPrintStmt(self,stmt:Print):
+        value = self.evaluate(stmt.expression)
+        print(value)
+        return None
 
     def visitGroupingExpr(self,expr:Grouping):
         return self.evaluate(expr.expression)
@@ -90,4 +106,3 @@ class Interpreter(Visitor):
             return not (left == right)
         elif opType is TokenType.EQUAL_EQUAL:
             return (left == right)
-
