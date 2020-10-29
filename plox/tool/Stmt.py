@@ -7,6 +7,7 @@ class Stmt:
 class StmtVisitor:
 	def visitExpressionStmt(self,stmt:Stmt): pass
 	def visitPrintStmt(self,stmt:Stmt): pass
+	def visitVarStmt(self,stmt:Stmt): pass
 
 class Expression(Stmt):
 	def __init__(self,expression:Expr):
@@ -19,5 +20,12 @@ class Print(Stmt):
 		self.expression = expression
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitPrintStmt(self)
+
+class Var(Stmt):
+	def __init__(self,name:Token, initialized:Expr):
+		self.name = name
+		self. initialized =  initialized
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitVarStmt(self)
 
 

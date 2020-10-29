@@ -17,8 +17,26 @@ class Parser:
     def parse(self):
         statements = list()
         while not self.isAtEnd():
-            statements.append(self.statement())
+            statements.append(self.declaration())
         return statements
+
+    def declaration(self):
+        try:
+            if self.match(TokenType.VAR):
+                return self.varDeclaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            return None
+
+    def varDeclaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name")
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expected ';' after var declaration")
+        return Var(name, initializer)
 
     def statement(self):
         if self.match(TokenType.PRINT):
@@ -102,7 +120,9 @@ class Parser:
         if self.match(TokenType.NIL): return Literal(None)
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
-        if (self.match(TokenType.LEFT_PAREN)):
+        if self.match(TokenType.IDENTIFIER):
+            return Variable(self.previous())
+        if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, 'Expect `)` after expression')
             return Grouping(expr)
