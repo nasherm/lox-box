@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="plox-YOUR-USERNAME-HERE", # Replace with your own username
+    name="plox-nasherm", # Replace with your own username
     version="0.0.1",
     author="Nashe Mncube",
     author_email="mncubenashe@gmailcpm",
