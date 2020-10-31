@@ -4,10 +4,12 @@ from plox.plox.RuntimeError import *
 from plox.plox.Util import runtimeError
 from plox.tool.Stmt import *
 from typing import List
+from plox.plox.Environment import Environment
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.hadRuntimeError = False
+        self.environment = Environment()
 
     def interpret(self, statements: List[Stmt]):
         try:
@@ -23,6 +25,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def execute(self, statement: Stmt):
         statement.accept(self)
+
+    def visitVarStmt(self,stmt:Var):
+        value = None
+        if stmt.initializer:
+            value = self.evaluate(stmt.initializer)
+        self.environment.define(stmt.name.lexeme, value)
+        return None
 
     def visitLiteralExpr(self,expr: Literal):
         return expr.value
@@ -67,6 +76,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
             right = not self.isTruthy(right)
 
         return right
+
+    def visitVariableExpr(self,expr:Variable):
+        return self.environment.get(expr.name)
 
     def visitBinaryExpr(self,expr:Binary):
         left = self.evaluate(expr.left)

@@ -20,7 +20,7 @@ class GenerateAst:
             [
                 "Expression ; expression:Expr",
                 "Print      ; expression:Expr",
-                "Var        ; name:Token, initialized:Expr"
+                "Var        ; name:Token, initializer:Expr"
             ],
             imports=['plox.tool.Expr']
         )

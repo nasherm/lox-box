@@ -22,9 +22,9 @@ class Print(Stmt):
 		return visitor.visitPrintStmt(self)
 
 class Var(Stmt):
-	def __init__(self,name:Token, initialized:Expr):
+	def __init__(self,name:Token, initializer:Expr):
 		self.name = name
-		self. initialized =  initialized
+		self. initializer =  initializer
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitVarStmt(self)
 

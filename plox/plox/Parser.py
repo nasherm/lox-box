@@ -85,12 +85,6 @@ class Parser:
             expr = Binary(expr, op, right)
 
         return expr
-        # return self.parseLeftAssocBinaryExpr(
-        #     self.factor,
-        #     Binary,
-        #     TokenType.MINUS,
-        #     TokenType.PLUS
-        # )
 
     def factor(self):
         expr = self.unary()
@@ -100,12 +94,6 @@ class Parser:
             expr = Binary(expr, op, right)
 
         return expr
-        # return self.parseLeftAssocBinaryExpr(
-        #     self.unary,
-        #     Binary,
-        #     TokenType.SLASH,
-        #     TokenType.STAR
-        # )
 
     def unary(self):
         if self.match(TokenType.BANG, TokenType.MINUS):

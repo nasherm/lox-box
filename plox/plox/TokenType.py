@@ -3,9 +3,9 @@ from enum import Enum
 class Token:
     def __init__(self,
                  type=None,
-                 lexeme="",
+                 lexeme:str="",
                  literal=None,
-                 line=-1):
+                 line:int=-1):
         self.type = type
         self.lexeme = lexeme
         self.literal = literal
