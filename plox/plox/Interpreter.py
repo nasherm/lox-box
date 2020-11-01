@@ -80,6 +80,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visitVariableExpr(self,expr:Variable):
         return self.environment.get(expr.name)
 
+    def visitAssignExpr(self,expr:Assign):
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
+
     def visitBinaryExpr(self,expr:Binary):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)

@@ -9,6 +9,7 @@ class ExprVisitor:
 	def visitLiteralExpr(self,expr:Expr): pass
 	def visitUnaryExpr(self,expr:Expr): pass
 	def visitVariableExpr(self,expr:Expr): pass
+	def visitAssignExpr(self,expr:Expr): pass
 
 class Binary(Expr):
 	def __init__(self,left:Expr, operator:Token, right:Expr):
@@ -42,5 +43,12 @@ class Variable(Expr):
 		self.name = name
 	def accept(self, visitor:ExprVisitor):
 		return visitor.visitVariableExpr(self)
+
+class Assign(Expr):
+	def __init__(self,name: Token, value: Expr):
+		self.name = name
+		self. value =  value
+	def accept(self, visitor:ExprVisitor):
+		return visitor.visitAssignExpr(self)
 
 

@@ -12,7 +12,8 @@ class GenerateAst:
                "Grouping ; expression:Expr",
                "Literal  ; value:Any",
                "Unary    ; operator:Token, right:Expr",
-               "Variable ; name:Token"
+               "Variable ; name:Token",
+               "Assign   ; name: Token, value: Expr"
            ])
 
         self.defineAst(
