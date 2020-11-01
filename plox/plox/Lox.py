@@ -13,7 +13,7 @@ class Lox:
         self.interpreter = Interpreter()
 
     def runFile(self, path: str):
-        f = open(path, 'rb')
+        f = open(path, 'r')
         self.run(str(f.read()))
         if self.hadError:
             sys.exit(65)
@@ -45,7 +45,8 @@ if __name__ == "__main__":
     if argsLen > 2:
         print("Usage: lox [script]")
     elif argsLen == 2:
-        lox.runFile(args[0])
+        print(args[1])
+        lox.runFile(args[1])
     else:
         lox.runPrompt()
 

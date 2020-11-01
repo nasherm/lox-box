@@ -19,6 +19,7 @@ class GenerateAst:
         self.defineAst(
             "Stmt",
             [
+                "Block      ; statements:List[Stmt]",
                 "Expression ; expression:Expr",
                 "Print      ; expression:Expr",
                 "Var        ; name:Token, initializer:Expr"
@@ -33,7 +34,7 @@ class GenerateAst:
     def defineAst(self, baseName: str, types: list, imports=list()):
         path = f'{self.outputDir}/{baseName}.py'
         fileWriter = open(path, 'w')
-        fileWriter.write('from typing import Any\n')
+        fileWriter.write('from typing import *\n')
         fileWriter.write('from plox.plox.TokenType import Token\n')
         for i in imports:
             fileWriter.write(f'from {i} import *\n')

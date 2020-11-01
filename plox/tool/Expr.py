@@ -1,4 +1,4 @@
-from typing import Any
+from typing import *
 from plox.plox.TokenType import Token
 class Expr:
 	def init(self): pass

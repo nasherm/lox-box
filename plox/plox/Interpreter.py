@@ -26,6 +26,15 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def execute(self, statement: Stmt):
         statement.accept(self)
 
+    def executeBlock(self, statements:List[Stmt], environment: Environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
     def visitVarStmt(self,stmt:Var):
         value = None
         if stmt.initializer:
@@ -47,6 +56,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = self.evaluate(stmt.expression)
         print(value)
         return None
+
+    def visitBlockStmt(self,stmt:Block):
+        self.executeBlock(stmt.statements, Environment(self.environment))
+        return
 
     def visitGroupingExpr(self,expr:Grouping):
         return self.evaluate(expr.expression)
