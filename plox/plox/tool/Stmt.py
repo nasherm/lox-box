@@ -1,6 +1,6 @@
 from typing import *
-from plox.plox.TokenType import Token
-from plox.tool.Expr import *
+from TokenType import Token
+from .Expr import *
 class Stmt:
 	def init(self): pass
 	def accept(self,visitor): pass

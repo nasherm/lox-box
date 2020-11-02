@@ -1,10 +1,10 @@
 import sys
-from plox.plox.Scanner import Scanner
-from plox.plox.TokenType import *
-from plox.plox.Util import *
-from plox.plox.Parser import Parser
-from plox.plox.AstPrinter import AstPrinter
-from plox.plox.Interpreter import Interpreter
+from Scanner import Scanner
+from TokenType import *
+from Util import *
+from Parser import Parser
+from AstPrinter import AstPrinter
+from Interpreter import Interpreter
 
 class Lox:
     def __init__(self):

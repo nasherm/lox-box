@@ -24,7 +24,7 @@ class GenerateAst:
                 "Print      ; expression:Expr",
                 "Var        ; name:Token, initializer:Expr"
             ],
-            imports=['plox.tool.Expr']
+            imports=['.Expr']
         )
 
     def stripWhitespace(self, s: str):
@@ -35,7 +35,7 @@ class GenerateAst:
         path = f'{self.outputDir}/{baseName}.py'
         fileWriter = open(path, 'w')
         fileWriter.write('from typing import *\n')
-        fileWriter.write('from plox.plox.TokenType import Token\n')
+        fileWriter.write('from ..TokenType import Token\n')
         for i in imports:
             fileWriter.write(f'from {i} import *\n')
         fileWriter.write(f'class {baseName}:\n\tdef init(self): pass\n')

@@ -1,6 +1,6 @@
 import sys
-from plox.plox.TokenType import *
-from plox.plox.RuntimeError import RuntimeError
+from TokenType import *
+from RuntimeError import RuntimeError
 
 def errorPrint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)

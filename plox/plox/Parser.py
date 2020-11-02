@@ -1,8 +1,8 @@
 from typing import List
-from plox.tool.Expr import *
-from plox.plox.TokenType import *
-import plox.plox.Util as Util
-from plox.tool.Stmt import *
+from tool.Expr import Expr
+from TokenType import *
+import Util as Util
+from tool.Stmt import *
 
 class ParseError(Exception):
     def __init__(self):

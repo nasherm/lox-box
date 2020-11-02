@@ -1,10 +1,10 @@
-from plox.tool.Expr import *
-from plox.plox.TokenType import *
-from plox.plox.RuntimeError import *
-from plox.plox.Util import runtimeError
-from plox.tool.Stmt import *
+from tool.Expr import *
+from TokenType import *
+from RuntimeError import *
+from Util import runtimeError
+from tool.Stmt import *
 from typing import List
-from plox.plox.Environment import Environment
+from Environment import Environment
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):

@@ -1,4 +1,4 @@
-from plox.tool.Expr import *
+from tool.Expr import *
 
 class AstPrinter(ExprVisitor):
     def __init__(self):

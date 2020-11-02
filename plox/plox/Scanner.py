@@ -1,5 +1,5 @@
-from plox.plox.TokenType import *
-from plox.plox.Util import atLineError
+from TokenType import *
+from Util import atLineError
 
 class Scanner:
     def __init__(self, source: str):
