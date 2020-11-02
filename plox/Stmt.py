@@ -1,5 +1,9 @@
 from typing import *
+<<<<<<< HEAD:plox/Stmt.py
 from .TokenType import Token
+=======
+from TokenType import Token
+>>>>>>> 8110f251c957b682aac4980aeb2d2ca8cd22bb21:plox/tool/Stmt.py
 from .Expr import *
 class Stmt:
 	def init(self): pass

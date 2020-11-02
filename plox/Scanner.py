@@ -1,5 +1,10 @@
+<<<<<<< HEAD:plox/Scanner.py
 from .TokenType import *
 from .Util import atLineError
+=======
+from TokenType import *
+from Util import atLineError
+>>>>>>> 8110f251c957b682aac4980aeb2d2ca8cd22bb21:plox/plox/Scanner.py
 
 class Scanner:
     def __init__(self, source: str):
