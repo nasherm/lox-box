@@ -1,6 +1,6 @@
 from typing import Any
-from plox.plox.TokenType import Token
-from plox.plox.RuntimeError import RuntimeError
+from .TokenType import Token
+from .RuntimeError import RuntimeError
 
 class Environment:
     def __init__(self, enclosing=None):

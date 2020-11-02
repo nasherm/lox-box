@@ -1,8 +1,10 @@
 class GenerateAst:
-    def __init__(self, args=['.']):
-        if len(args) != 1:
+    def __init__(self, args=None):
+        import os
+        if args:
+            self.outputDir = args
             return
-        self.outputDir = args[0]
+        self.outputDir = os.path.dirname(os.path.realpath(__file__))
 
     def run(self):
         self.defineAst(
@@ -21,10 +23,11 @@ class GenerateAst:
             [
                 "Block      ; statements:List[Stmt]",
                 "Expression ; expression:Expr",
+                "If         ; condition:Expr, thenBranch:Stmt, elseBranch:Stmt",
                 "Print      ; expression:Expr",
                 "Var        ; name:Token, initializer:Expr"
             ],
-            imports=['plox.tool.Expr']
+            imports=['Expr']
         )
 
     def stripWhitespace(self, s: str):
@@ -35,7 +38,7 @@ class GenerateAst:
         path = f'{self.outputDir}/{baseName}.py'
         fileWriter = open(path, 'w')
         fileWriter.write('from typing import *\n')
-        fileWriter.write('from plox.plox.TokenType import Token\n')
+        fileWriter.write('from TokenType import Token\n')
         for i in imports:
             fileWriter.write(f'from {i} import *\n')
         fileWriter.write(f'class {baseName}:\n\tdef init(self): pass\n')

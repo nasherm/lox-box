@@ -1,8 +1,8 @@
 from typing import List
-from plox.tool.Expr import *
-from plox.plox.TokenType import *
-import plox.plox.Util as Util
-from plox.tool.Stmt import *
+from .Expr import Expr
+from .TokenType import *
+from .Util import Util
+from .Stmt import *
 
 class ParseError(Exception):
     def __init__(self):
@@ -39,12 +39,14 @@ class Parser:
         return Var(name, initializer)
 
     def statement(self):
+        if self.match(TokenType.IF):
+            return self.ifStatement()
         if self.match(TokenType.PRINT):
             return self.printStatement()
         if self.match(TokenType.LEFT_BRACE):
             return Block(self.block())
         return self.expressionStatement()
-
+    
     def printStatement(self):
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value")

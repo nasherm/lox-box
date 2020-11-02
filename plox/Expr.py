@@ -1,5 +1,5 @@
 from typing import *
-from plox.plox.TokenType import Token
+from .TokenType import Token
 class Expr:
 	def init(self): pass
 	def accept(self,visitor): pass

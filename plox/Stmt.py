@@ -1,12 +1,13 @@
 from typing import *
-from plox.plox.TokenType import Token
-from plox.tool.Expr import *
+from .TokenType import Token
+from .Expr import *
 class Stmt:
 	def init(self): pass
 	def accept(self,visitor): pass
 class StmtVisitor:
 	def visitBlockStmt(self,stmt:Stmt): pass
 	def visitExpressionStmt(self,stmt:Stmt): pass
+	def visitIfStmt(self,stmt:Stmt): pass
 	def visitPrintStmt(self,stmt:Stmt): pass
 	def visitVarStmt(self,stmt:Stmt): pass
 
@@ -21,6 +22,14 @@ class Expression(Stmt):
 		self.expression = expression
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitExpressionStmt(self)
+
+class If(Stmt):
+	def __init__(self,condition:Expr, thenBranch:Stmt, elseBranch:Stmt):
+		self.condition = condition
+		self. thenBranch =  thenBranch
+		self. elseBranch =  elseBranch
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitIfStmt(self)
 
 class Print(Stmt):
 	def __init__(self,expression:Expr):
