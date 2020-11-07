@@ -1,6 +1,6 @@
 ploxDir = plox
 ploxSrc = $(ploxDir)/$(wildcard *.py)
-ploxMain = $(ploxDir).Lox.py
+ploxMain = $(ploxDir).Lox
 
 .PHONY: plox
 plox:

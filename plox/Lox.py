@@ -28,8 +28,9 @@ class Lox:
             if inputData == ":l":
                 filePath = input("Path: ")
                 self.runFile(filePath)
-            self.run(inputData)
-            self.hadError = False
+            else:
+                self.run(inputData)
+                self.hadError = False
 
     def run(self, source: str):
         scanner = Scanner(source)
