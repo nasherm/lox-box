@@ -1,9 +1,5 @@
 from typing import *
-<<<<<<< HEAD:plox/Stmt.py
 from .TokenType import Token
-=======
-from TokenType import Token
->>>>>>> 8110f251c957b682aac4980aeb2d2ca8cd22bb21:plox/tool/Stmt.py
 from .Expr import *
 class Stmt:
 	def init(self): pass
@@ -14,6 +10,7 @@ class StmtVisitor:
 	def visitIfStmt(self,stmt:Stmt): pass
 	def visitPrintStmt(self,stmt:Stmt): pass
 	def visitVarStmt(self,stmt:Stmt): pass
+	def visitWhileStmt(self,stmt:Stmt): pass
 
 class Block(Stmt):
 	def __init__(self,statements:List[Stmt]):
@@ -47,5 +44,12 @@ class Var(Stmt):
 		self. initializer =  initializer
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitVarStmt(self)
+
+class While(Stmt):
+	def __init__(self,condition:Expr, body:Stmt):
+		self.condition = condition
+		self. body =  body
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitWhileStmt(self)
 
 

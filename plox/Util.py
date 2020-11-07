@@ -1,11 +1,6 @@
 import sys
-<<<<<<< HEAD:plox/Util.py
 from .TokenType import *
 from .RuntimeError import RuntimeError
-=======
-from TokenType import *
-from RuntimeError import RuntimeError
->>>>>>> 8110f251c957b682aac4980aeb2d2ca8cd22bb21:plox/plox/Util.py
 
 def errorPrint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)

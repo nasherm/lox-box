@@ -1,25 +1,4 @@
 from enum import Enum
-
-class Token:
-    def __init__(self,
-                 type=None,
-                 lexeme:str="",
-                 literal=None,
-                 line:int=-1):
-        self.type = type
-        self.lexeme = lexeme
-        self.literal = literal
-        self.line = line
-
-    def toString(self):
-        return f"TYPE={self.type} LEXEME={self.lexeme} LITERAL={self.literal}\n"
-
-    def __str__(self):
-        return self.toString()
-
-    def __repr__(self):
-        return self.toString()
-
 class TokenType(Enum):
   # Single-character tokens.
   LEFT_PAREN = 1
@@ -97,3 +76,24 @@ def whiteSpaceMap():
     d['\r'] = True
     d['\t'] = True
     return d
+
+class Token:
+    def __init__(self,
+                 type:TokenType=None,
+                 lexeme:str="",
+                 literal=None,
+                 line:int=-1):
+        self.type = type
+        self.lexeme = lexeme
+        self.literal = literal
+        self.line = line
+
+    def toString(self):
+        return f"TYPE={self.type} LEXEME={self.lexeme} LITERAL={self.literal}\n"
+
+    def __str__(self):
+        return self.toString()
+
+    def __repr__(self):
+        return self.toString()
+

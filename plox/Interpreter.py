@@ -41,22 +41,39 @@ class Interpreter(ExprVisitor, StmtVisitor):
         if stmt.initializer:
             value = self.evaluate(stmt.initializer)
         self.environment.define(stmt.name.lexeme, value)
-        return None
 
     def visitLiteralExpr(self,expr: Literal):
         return expr.value
+
+    def visitLogicalExpr(self, expr: Logical):
+        left = self.evaluate(expr.left)
+        if expr.operator.type == TokenType.OR:
+            if self.isTruthy(left):
+                return left
+        else:
+            if not self.isTruthy(left):
+                return left
+        return self.evaluate(expr.right)
 
     def evaluate(self, expr: Expr):
         return expr.accept(self)
 
     def visitExpressionStmt(self,stmt:Expression):
         self.evaluate(stmt.expression)
-        return None
 
+    def visitIfStmt(self, stmt: If):
+        if self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        else:
+            self.execute(stmt.elseBranch)
+    
+    def visitWhileStmt(self, stmt: While):
+        while self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
+        
     def visitPrintStmt(self,stmt:Print):
         value = self.evaluate(stmt.expression)
         print(value)
-        return None
 
     def visitBlockStmt(self,stmt:Block):
         self.executeBlock(stmt.statements, Environment(self.environment))

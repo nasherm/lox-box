@@ -25,6 +25,9 @@ class Lox:
             inputData = input("> ")
             if inputData == ":q":
                 break
+            if inputData == ":l":
+                filePath = input("Path: ")
+                self.runFile(filePath)
             self.run(inputData)
             self.hadError = False
 
@@ -45,7 +48,7 @@ if __name__ == "__main__":
     if argsLen > 2:
         print("Usage: lox [script]")
     elif argsLen == 2:
-        print(args[1])
+        print(f'Executing file: {args[1]}')
         lox.runFile(args[1])
     else:
         lox.runPrompt()

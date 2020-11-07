@@ -13,6 +13,7 @@ class GenerateAst:
                "Binary   ; left:Expr, operator:Token, right:Expr",
                "Grouping ; expression:Expr",
                "Literal  ; value:Any",
+               "Logical  ; left:Expr, operator:Token, right: Expr",
                "Unary    ; operator:Token, right:Expr",
                "Variable ; name:Token",
                "Assign   ; name: Token, value: Expr"
@@ -25,9 +26,10 @@ class GenerateAst:
                 "Expression ; expression:Expr",
                 "If         ; condition:Expr, thenBranch:Stmt, elseBranch:Stmt",
                 "Print      ; expression:Expr",
-                "Var        ; name:Token, initializer:Expr"
+                "Var        ; name:Token, initializer:Expr",
+                "While      ; condition:Expr, body:Stmt"
             ],
-            imports=['Expr']
+            imports=['.Expr']
         )
 
     def stripWhitespace(self, s: str):
@@ -38,7 +40,7 @@ class GenerateAst:
         path = f'{self.outputDir}/{baseName}.py'
         fileWriter = open(path, 'w')
         fileWriter.write('from typing import *\n')
-        fileWriter.write('from TokenType import Token\n')
+        fileWriter.write('from .TokenType import Token\n')
         for i in imports:
             fileWriter.write(f'from {i} import *\n')
         fileWriter.write(f'class {baseName}:\n\tdef init(self): pass\n')
