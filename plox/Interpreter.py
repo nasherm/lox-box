@@ -1,3 +1,4 @@
+from plox.LoxCallable import LoxCallable
 from .Expr import *
 from .TokenType import *
 from .RuntimeError import *
@@ -107,6 +108,23 @@ class Interpreter(ExprVisitor, StmtVisitor):
             right = not self.isTruthy(right)
 
         return right
+
+    def visitCallExpr(self, expr: Call):
+        callee = self.evaluate(expr.callee)
+        args = list()
+        for arg in expr.args:
+            args.append(self.evaluate(arg))
+        
+        if not isinstance(callee, LoxCallable):
+            raise RuntimeError(expr.paren, "Can only call functions and classes")
+        
+        fun: LoxCallable = callee
+        if len(args) != fun.arity():
+            raise RuntimeError(
+                expr.paren, 
+                f'Expected {fun.arity()} arguments got {len(args)}.')
+        
+        return fun.call(self, args)
 
     def visitVariableExpr(self,expr:Variable):
         return self.environment.get(expr.name)

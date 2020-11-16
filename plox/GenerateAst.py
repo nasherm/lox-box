@@ -11,6 +11,7 @@ class GenerateAst:
             "Expr",
            [
                "Binary   ; left:Expr, operator:Token, right:Expr",
+               "Call     ; callee:Expr, paren:Token, args:List[Expr]",
                "Grouping ; expression:Expr",
                "Literal  ; value:Any",
                "Logical  ; left:Expr, operator:Token, right: Expr",

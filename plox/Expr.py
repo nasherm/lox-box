@@ -5,6 +5,7 @@ class Expr:
 	def accept(self,visitor): pass
 class ExprVisitor:
 	def visitBinaryExpr(self,expr:Expr): pass
+	def visitCallExpr(self,expr:Expr): pass
 	def visitGroupingExpr(self,expr:Expr): pass
 	def visitLiteralExpr(self,expr:Expr): pass
 	def visitLogicalExpr(self,expr:Expr): pass
@@ -19,6 +20,14 @@ class Binary(Expr):
 		self. right =  right
 	def accept(self, visitor:ExprVisitor):
 		return visitor.visitBinaryExpr(self)
+
+class Call(Expr):
+	def __init__(self,callee:Expr, paren:Token, args:List[Expr]):
+		self.callee = callee
+		self. paren =  paren
+		self. args =  args
+	def accept(self, visitor:ExprVisitor):
+		return visitor.visitCallExpr(self)
 
 class Grouping(Expr):
 	def __init__(self,expression:Expr):
