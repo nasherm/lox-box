@@ -52,8 +52,8 @@ class Scanner:
             else:
                 self.addToken(l)
         elif char == '/':
-            if self.match('/'):
-                while self.peek() != '\n' and (not self.isAtEnd):
+            if self.peek() == '/':
+                while self.peek() != '\n' and (not self.isAtEnd()):
                     self.advance()
             else:
                 self.addToken(TokenType.SLASH)
