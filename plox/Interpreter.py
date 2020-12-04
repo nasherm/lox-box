@@ -1,24 +1,25 @@
-from plox.LoxCallable import LoxCallable
+from plox.LoxFunction import LoxFunction
+from .LoxCallable import LoxCallable
 from .Expr import *
 from .TokenType import *
 from .RuntimeError import *
 from .Util import runtimeError
 from .Stmt import *
 from .Environment import Environment
+from .NativeFunctions import *
+from .LoxFunction import LoxFunction
 
 from typing import List
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.hadRuntimeError = False
-        self.environment = Environment()
-
+        self.globals = Environment()
+        self.environment = self.globals
+        self.globals.define('clock', ClockNative())
+    
     def interpret(self, statements: List[Stmt]):
         try:
-            # value = self.evaluate(expr)
-            # if isinstance(value, str):
-            #     value = f'"{value}"'
-            # print(value)
             for stmt in statements:
                 self.execute(stmt)
         except RuntimeError as e:
@@ -61,6 +62,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visitExpressionStmt(self,stmt:Expression):
         self.evaluate(stmt.expression)
+
+    def visitFunctionStmt(self, stmt: Function):
+        function = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
 
     def visitIfStmt(self, stmt: If):
         if self.isTruthy(self.evaluate(stmt.condition)):

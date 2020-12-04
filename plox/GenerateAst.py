@@ -26,6 +26,7 @@ class GenerateAst:
                 "Block      ; statements:List[Stmt]",
                 "Expression ; expression:Expr",
                 "If         ; condition:Expr, thenBranch:Stmt, elseBranch:Stmt",
+                "Function   ; name:Token, params:List[Token], body:List[Stmt]",
                 "Print      ; expression:Expr",
                 "Var        ; name:Token, initializer:Expr",
                 "While      ; condition:Expr, body:Stmt"

@@ -42,7 +42,7 @@ class Lox:
         # astPrinter.print(expr)
         self.interpreter.interpret(statements)
 
-if __name__ == "__main__":
+def main():
     args = sys.argv
     argsLen = len(args)
     lox = Lox()

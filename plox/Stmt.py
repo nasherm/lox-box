@@ -8,6 +8,7 @@ class StmtVisitor:
 	def visitBlockStmt(self,stmt:Stmt): pass
 	def visitExpressionStmt(self,stmt:Stmt): pass
 	def visitIfStmt(self,stmt:Stmt): pass
+	def visitFunctionStmt(self,stmt:Stmt): pass
 	def visitPrintStmt(self,stmt:Stmt): pass
 	def visitVarStmt(self,stmt:Stmt): pass
 	def visitWhileStmt(self,stmt:Stmt): pass
@@ -31,6 +32,14 @@ class If(Stmt):
 		self. elseBranch =  elseBranch
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitIfStmt(self)
+
+class Function(Stmt):
+	def __init__(self,name:Token, params:List[Token], body:List[Stmt]):
+		self.name = name
+		self. params =  params
+		self. body =  body
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitFunctionStmt(self)
 
 class Print(Stmt):
 	def __init__(self,expression:Expr):
