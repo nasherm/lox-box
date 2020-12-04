@@ -1,10 +1,12 @@
 import sys
+from types import resolve_bases
 from .Scanner import Scanner
 from .TokenType import *
 from .Util import *
 from .Parser import Parser
 from .AstPrinter import AstPrinter
 from .Interpreter import Interpreter
+from .Resolver import Resolver
 
 class Lox:
     def __init__(self):
@@ -13,12 +15,11 @@ class Lox:
         self.interpreter = Interpreter()
 
     def runFile(self, path: str):
-        f = open(path, 'r')
-        self.run(str(f.read()))
-        if self.hadError:
-            sys.exit(65)
-        if self.hadRuntimeError:
-            sys.exit(70)
+        try:
+            f = open(path, 'r')
+            self.run(str(f.read()))
+        except:
+            print(f"Some failure occured: {sys.exc_info()[0]}")
 
     def runPrompt(self):
         while True:
@@ -35,11 +36,15 @@ class Lox:
     def run(self, source: str):
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
+
         parser = Parser(tokens)
         statements = parser.parse()
         if parser.hadError: return
-        # astPrinter = AstPrinter()
-        # astPrinter.print(expr)
+
+        resolver = Resolver(self.interpreter)
+        resolver.resolve(statements)
+        if resolver.hadError: return
+
         self.interpreter.interpret(statements)
 
 def main():

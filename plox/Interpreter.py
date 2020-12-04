@@ -1,9 +1,8 @@
-from plox.LoxFunction import LoxFunction
+from .LoxFunction import LoxFunction
 from .LoxCallable import LoxCallable
 from .Expr import *
 from .TokenType import *
 from .RuntimeError import *
-from .Util import runtimeError
 from .Stmt import *
 from .Environment import Environment
 from .NativeFunctions import *
@@ -18,17 +17,20 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.globals = Environment()
         self.environment = self.globals
         self.globals.define('clock', ClockNative())
-    
+        self.locals: dict[Expr, int] = {}
+
     def interpret(self, statements: List[Stmt]):
         try:
             for stmt in statements:
                 self.execute(stmt)
         except RuntimeError as e:
-            runtimeError(e)
-            self.hadRuntimeError = True
+            pass
 
     def execute(self, statement: Stmt):
         statement.accept(self)
+
+    def resolve(self, expr: Expr, depth: int):
+        self.locals[expr] = depth
 
     def executeBlock(self, statements:List[Stmt], environment: Environment):
         previous = self.environment
@@ -74,11 +76,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.execute(stmt.thenBranch)
         elif stmt.elseBranch:
             self.execute(stmt.elseBranch)
-    
+
     def visitWhileStmt(self, stmt: While):
         while self.isTruthy(self.evaluate(stmt.condition)):
             self.execute(stmt.body)
-        
+
     def visitPrintStmt(self,stmt:Print):
         value = self.evaluate(stmt.expression)
         print(value)
@@ -102,7 +104,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
             allFloats &= isinstance(operand, float)
         if allFloats:
             return
-        raise RuntimeError(operator, 'Operand must be a number')
+        raise self.runtimeError(operator, 'Operand must be a number')
 
     def isTruthy(self, obj):
         if isinstance(obj, bool):
@@ -127,24 +129,35 @@ class Interpreter(ExprVisitor, StmtVisitor):
         args = list()
         for arg in expr.args:
             args.append(self.evaluate(arg))
-        
+
         if not isinstance(callee, LoxCallable):
-            raise RuntimeError(expr.paren, "Can only call functions and classes")
-        
+            raise self.runtimeError(expr.paren, "Can only call functions and classes")
+
         fun: LoxCallable = callee
         if len(args) != fun.arity():
-            raise RuntimeError(
-                expr.paren, 
+            raise self.runtimeError(
+                expr.paren,
                 f'Expected {fun.arity()} arguments got {len(args)}.')
-        
+
         return fun.call(self, args)
 
     def visitVariableExpr(self,expr:Variable):
-        return self.environment.get(expr.name)
+        return self.lookupVariable(expr.name, expr)
+
+    def lookupVariable(self, name:Token,expr:Expr):
+        distance = self.locals.get(expr)
+        if distance is not None:
+            return self.environment.getAt(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
 
     def visitAssignExpr(self,expr:Assign):
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        distance = self.locals.get(expr)
+        if distance is not None:
+            self.environment.assignAt(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
         return value
 
     def visitBinaryExpr(self,expr:Binary):
@@ -170,12 +183,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
             isTwoNumbers = isinstance(left, float) and isinstance(right, float)
             isTwoStrings = isinstance(left, str) and isinstance(right, str)
             if not (isTwoStrings or isTwoNumbers):
-                raise RuntimeError(opType, "Operands must be two strings or two numbers")
+                raise self.runTimeError(opType, "Operands must be two strings or two numbers")
             return left + right
         elif opType is TokenType.SLASH:
             self.checkNumberOperands(opType, left, right)
             if right == 0:
-                raise RuntimeError(opType, "Divide by zero is not allowed")
+                raise self.runTimeError(opType, "Divide by zero is not allowed")
             return left / right
         elif opType is TokenType.STAR:
             self.checkNumberOperands(opType, left, right)
@@ -185,3 +198,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
             return not (left == right)
         elif opType is TokenType.EQUAL_EQUAL:
             return (left == right)
+
+    def runtimeError(self, token, message):
+        return RuntimeError(token, message, 'Interpreter')

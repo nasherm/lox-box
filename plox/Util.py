@@ -1,6 +1,5 @@
 import sys
 from .TokenType import *
-from .RuntimeError import RuntimeError
 
 def errorPrint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -10,13 +9,11 @@ def atLineError(lineNumber: int, message: str):
 
 def report(lineNumber: int, where: str, message: str):
     errorPrint(f'\n[Line {lineNumber}] Error {where} : {message}\n')
-    # self.hadError = True
 
-def error(token: Token, message: str):
+def error(token: Token, message: str, reportObj=None):
     if token.type == TokenType.EOF:
         report(token.line, " at end", message)
     else:
         report(token.line, f"at'{token.lexeme}'", message)
-
-def runtimeError(error: RuntimeError):
-    print(f'{error.message}\n')
+    if reportObj:
+        reportObj.hadError = True

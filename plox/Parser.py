@@ -4,10 +4,6 @@ from .TokenType import *
 from . import Util
 from .Stmt import *
 
-class ParseError(Exception):
-    def __init__(self):
-        self.hadError = False
-
 class Parser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
@@ -45,7 +41,7 @@ class Parser:
             readParams(params)
             while self.match(TokenType.COMMA):
                 readParams(params)
-        
+
         self.consume(TokenType.RIGHT_PAREN, 'Expect ")" after parameters.')
 
         self.consume(TokenType.LEFT_BRACE, f'Expect "{{" before {kind} body.')
@@ -97,14 +93,14 @@ class Parser:
         body = self.statement()
         if increment:
             body = Block([body, Expression(increment)])
-        
+
         if not condition:
             condition = Literal(True)
         body = While(condition, body)
 
         if initializer:
             body = Block([initializer, body])
-        
+
         return body
 
     def ifStatement(self):
@@ -128,7 +124,7 @@ class Parser:
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value")
         return Print(value)
-    
+
     def returnStatement(self):
         keyword = self.previous()
         value = None
@@ -225,7 +221,7 @@ class Parser:
             right = self.unary()
             return Unary(operator, right)
         return self.call()
-    
+
     def call(self):
         expr = self.primary()
 
@@ -261,7 +257,7 @@ class Parser:
             self.consume(TokenType.RIGHT_PAREN, 'Expect `)` after expression')
             return Grouping(expr)
 
-        raise self.error(self.peek(), 'Expect expression')
+        self.error(self.peek(), 'Expect expression')
 
     def match(self, *types):
         for type in types:
@@ -278,11 +274,10 @@ class Parser:
     def consume(self, type: TokenType, message: str):
         if self.check(type):
             return self.advance()
-        raise self.error(self.peek(), message)
+        self.error(self.peek(), message)
 
     def error(self, token: Token, message: str):
-        Util.error(token, f'<Parsing>{message}')
-        return ParseError()
+        Util.error(token, f'<Parsing>{message}', self)
 
     def synchronize(self):
         self.advance()
