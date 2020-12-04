@@ -1,24 +1,26 @@
-from plox.LoxCallable import LoxCallable
+from plox.LoxFunction import LoxFunction
+from .LoxCallable import LoxCallable
 from .Expr import *
 from .TokenType import *
 from .RuntimeError import *
 from .Util import runtimeError
 from .Stmt import *
 from .Environment import Environment
+from .NativeFunctions import *
+from .LoxFunction import LoxFunction
+from .ReturnEx import ReturnEx
 
 from typing import List
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.hadRuntimeError = False
-        self.environment = Environment()
-
+        self.globals = Environment()
+        self.environment = self.globals
+        self.globals.define('clock', ClockNative())
+    
     def interpret(self, statements: List[Stmt]):
         try:
-            # value = self.evaluate(expr)
-            # if isinstance(value, str):
-            #     value = f'"{value}"'
-            # print(value)
             for stmt in statements:
                 self.execute(stmt)
         except RuntimeError as e:
@@ -62,10 +64,15 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visitExpressionStmt(self,stmt:Expression):
         self.evaluate(stmt.expression)
 
+    def visitFunctionStmt(self, stmt: Function):
+        function = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
+
     def visitIfStmt(self, stmt: If):
-        if self.isTruthy(self.evaluate(stmt.condition)):
+        eval_result = self.evaluate(stmt.condition)
+        if self.isTruthy(eval_result):
             self.execute(stmt.thenBranch)
-        else:
+        elif stmt.elseBranch:
             self.execute(stmt.elseBranch)
     
     def visitWhileStmt(self, stmt: While):
@@ -75,6 +82,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visitPrintStmt(self,stmt:Print):
         value = self.evaluate(stmt.expression)
         print(value)
+
+    def visitReturnStmt(self, stmt: Return):
+        value = None
+        if stmt.value:
+            value = self.evaluate(stmt.value)
+        raise ReturnEx(value)
 
     def visitBlockStmt(self,stmt:Block):
         self.executeBlock(stmt.statements, Environment(self.environment))

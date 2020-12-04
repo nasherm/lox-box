@@ -7,4 +7,4 @@ class LoxCallable:
 
     @abstractmethod
     def arity(self) -> int:
-        pass
+        raise NotImplementedError

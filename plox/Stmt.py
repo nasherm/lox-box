@@ -8,7 +8,9 @@ class StmtVisitor:
 	def visitBlockStmt(self,stmt:Stmt): pass
 	def visitExpressionStmt(self,stmt:Stmt): pass
 	def visitIfStmt(self,stmt:Stmt): pass
+	def visitFunctionStmt(self,stmt:Stmt): pass
 	def visitPrintStmt(self,stmt:Stmt): pass
+	def visitReturnStmt(self,stmt:Stmt): pass
 	def visitVarStmt(self,stmt:Stmt): pass
 	def visitWhileStmt(self,stmt:Stmt): pass
 
@@ -32,11 +34,26 @@ class If(Stmt):
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitIfStmt(self)
 
+class Function(Stmt):
+	def __init__(self,name:Token, params:List[Token], body:List[Stmt]):
+		self.name = name
+		self. params =  params
+		self. body =  body
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitFunctionStmt(self)
+
 class Print(Stmt):
 	def __init__(self,expression:Expr):
 		self.expression = expression
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitPrintStmt(self)
+
+class Return(Stmt):
+	def __init__(self,keyword:Token, value:Expr):
+		self.keyword = keyword
+		self. value =  value
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitReturnStmt(self)
 
 class Var(Stmt):
 	def __init__(self,name:Token, initializer:Expr):

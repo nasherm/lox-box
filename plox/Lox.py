@@ -42,12 +42,12 @@ class Lox:
         # astPrinter.print(expr)
         self.interpreter.interpret(statements)
 
-if __name__ == "__main__":
+def main():
     args = sys.argv
     argsLen = len(args)
     lox = Lox()
     if argsLen > 2:
-        print("Usage: lox [script]")
+        print("Usage: ./plox.py [script]")
     elif argsLen == 2:
         print(f'Executing file: {args[1]}')
         lox.runFile(args[1])
