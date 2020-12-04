@@ -1,11 +1,11 @@
-from datetime import datetime
 from .LoxCallable import LoxCallable
+import time
 
 class ClockNative(LoxCallable):
     def arity(self) -> int:
         return 0
     def call(self, interpreter, args):
-        return datetime.now().microsecond /1000.
+        return time.time()*1000.0
     def __repr__(self) -> str:
         return '<native fn>'
 

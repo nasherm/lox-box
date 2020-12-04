@@ -23,7 +23,7 @@ class Parser:
             if self.match(TokenType.VAR):
                 return self.varDeclaration()
             return self.statement()
-        except ParseError:
+        except ParserError:
             self.synchronize()
             return None
 

@@ -38,7 +38,7 @@ class Resolver(ExprVisitor, StmtVisitor):
                 return
 
     def visitAssignExpr(self, expr: Assign):
-        self.resolveExpr(expr)
+        self.resolve(expr.value)
         self.resolveLocal(expr, expr.name)
 
     def visitFunctionStmt(self, stmt: Function):

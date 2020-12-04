@@ -7,6 +7,7 @@ from .Parser import Parser
 from .AstPrinter import AstPrinter
 from .Interpreter import Interpreter
 from .Resolver import Resolver
+import traceback
 
 class Lox:
     def __init__(self):
@@ -20,6 +21,7 @@ class Lox:
             self.run(str(f.read()))
         except:
             print(f"Some failure occured: {sys.exc_info()[0]}")
+            traceback.print_exc()
 
     def runPrompt(self):
         while True:
@@ -36,14 +38,17 @@ class Lox:
     def run(self, source: str):
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
+        print("Tokens scanning complete")
 
         parser = Parser(tokens)
         statements = parser.parse()
         if parser.hadError: return
+        print("Parsing complete")
 
         resolver = Resolver(self.interpreter)
         resolver.resolve(statements)
         if resolver.hadError: return
+        print("Variable resolution complete")
 
         self.interpreter.interpret(statements)
 
