@@ -1,0 +1,12 @@
+class Cream{
+    serveOn() {
+        return "Scones";
+    }
+}
+
+print Cream;
+class Bagel{}
+var bagel = Bagel();
+print bagel;
+
+print Cream().serveOn();

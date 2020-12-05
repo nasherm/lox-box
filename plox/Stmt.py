@@ -6,6 +6,7 @@ class Stmt:
 	def accept(self,visitor): pass
 class StmtVisitor:
 	def visitBlockStmt(self,stmt:Stmt): pass
+	def visitClassStmt(self,stmt:Stmt): pass
 	def visitExpressionStmt(self,stmt:Stmt): pass
 	def visitIfStmt(self,stmt:Stmt): pass
 	def visitFunctionStmt(self,stmt:Stmt): pass
@@ -19,6 +20,13 @@ class Block(Stmt):
 		self.statements = statements
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitBlockStmt(self)
+
+class Class(Stmt):
+	def __init__(self,name:Token, methods:List):
+		self.name = name
+		self. methods =  methods
+	def accept(self, visitor:StmtVisitor):
+		return visitor.visitClassStmt(self)
 
 class Expression(Stmt):
 	def __init__(self,expression:Expr):

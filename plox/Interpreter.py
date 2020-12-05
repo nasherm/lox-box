@@ -1,3 +1,4 @@
+from plox.LoxInstance import LoxInstance
 from .LoxFunction import LoxFunction
 from .LoxCallable import LoxCallable
 from .Expr import *
@@ -8,6 +9,7 @@ from .Environment import Environment
 from .NativeFunctions import *
 from .LoxFunction import LoxFunction
 from .ReturnEx import ReturnEx
+from .LoxClass import LoxClass
 
 from typing import List
 
@@ -69,6 +71,29 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visitFunctionStmt(self, stmt: Function):
         function = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
+
+    def visitClassStmt(self, stmt: Class):
+        self.environment.define(stmt.name.lexeme, (not None))
+        methods: dict[str, LoxFunction] = dict()
+        for method in stmt.methods:
+            function = LoxFunction(method, self.environment)
+            methods[method.name.lexeme] = function
+        klass = LoxClass(stmt.name.lexeme, methods)
+        self.environment.assign(stmt.name, klass)
+
+    def visitGetExpr(self, expr: Get):
+        object = self.evaluate(expr.object)
+        if isinstance(object, LoxInstance):
+            return object.get(expr.name)
+        raise self.runtimeError(expr.name, "Only instances have properties.")
+
+    def visitSetExpr(self, expr: Set):
+        object = self.evaluate(expr.object)
+        if not isinstance(object, LoxInstance):
+            raise self.runtimeError(expr.name, "Only instances have fields")
+        value = self.evaluate(expr.value)
+        object.set(expr.name, value)
+        return value
 
     def visitIfStmt(self, stmt: If):
         eval_result = self.evaluate(stmt.condition)

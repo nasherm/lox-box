@@ -18,14 +18,26 @@ class Parser:
 
     def declaration(self):
         try:
+            if self.match(TokenType.CLASS):
+                return self.classDeclaration()
             if self.match(TokenType.FUN):
                 return self.function('function')
             if self.match(TokenType.VAR):
                 return self.varDeclaration()
             return self.statement()
-        except ParserError:
+        except Exception as err:
+            print(f'<PARSE ERROR: err.__str__()>')
             self.synchronize()
-            return None
+            return
+
+    def classDeclaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect class name")
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body")
+        methods = list()
+        while (not self.check(TokenType.RIGHT_BRACE)) and (not self.isAtEnd()):
+            methods.append(self.function("method"))
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body")
+        return Class(name, methods)
 
     def function(self, kind:str):
         name = self.consume(TokenType.IDENTIFIER, f'Expect {kind} name.')
@@ -157,6 +169,8 @@ class Parser:
             if isinstance(expr, Variable):
                 name = expr.name
                 return Assign(name, value)
+            elif isinstance(expr, Get):
+                return Set(expr.object, expr.name, value)
             self.error(equals, "Invalid assignment target.")
         return expr
 
@@ -228,6 +242,9 @@ class Parser:
         while True:
             if self.match(TokenType.LEFT_PAREN):
                 expr = self.finishCall(expr)
+            elif self.match(TokenType.DOT):
+                name = self.consume(TokenType.IDENTIFIER, "Expect property name after '.'")
+                expr = Get(expr, name)
             else:
                 break
 

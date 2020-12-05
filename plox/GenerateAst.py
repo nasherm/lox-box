@@ -12,9 +12,11 @@ class GenerateAst:
            [
                "Binary   ; left:Expr, operator:Token, right:Expr",
                "Call     ; callee:Expr, paren:Token, args:List[Expr]",
+               "Get      ; object:Expr, name:Token",
                "Grouping ; expression:Expr",
                "Literal  ; value:Any",
                "Logical  ; left:Expr, operator:Token, right: Expr",
+               "Set      ; object:Expr, name:Token, value:Expr",
                "Unary    ; operator:Token, right:Expr",
                "Variable ; name:Token",
                "Assign   ; name: Token, value: Expr"
@@ -24,6 +26,7 @@ class GenerateAst:
             "Stmt",
             [
                 "Block      ; statements:List[Stmt]",
+                "Class      ; name:Token, methods:List",
                 "Expression ; expression:Expr",
                 "If         ; condition:Expr, thenBranch:Stmt, elseBranch:Stmt",
                 "Function   ; name:Token, params:List[Token], body:List[Stmt]",

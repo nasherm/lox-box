@@ -6,7 +6,8 @@ from .Util import error
 from enum import Enum
 class FunctionType(Enum):
     NONE = 1,
-    FUNCTION = 2
+    FUNCTION = 2,
+    METHOD=3
 
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
@@ -45,6 +46,19 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.declare(stmt.name)
         self.define(stmt.name)
         self.resolveFunction(stmt, FunctionType.FUNCTION)
+
+    def visitClassStmt(self, stmt: Class):
+        self.declare(stmt.name)
+        self.define(stmt.name)
+        for method in stmt.methods:
+            self.resolveFunction(method, FunctionType.METHOD)
+
+    def visitGetExpr(self, expr: Get):
+        self.resolve(expr.object)
+
+    def visitSetExpr(self, expr: Set):
+        self.resolve(expr.value)
+        self.resolve(expr.object)
 
     def resolveFunction(self, stmt: Function, type: FunctionType):
         enclosingFunction = self.currentFunction

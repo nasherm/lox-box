@@ -38,17 +38,18 @@ class Lox:
     def run(self, source: str):
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
-        print("Tokens scanning complete")
 
         parser = Parser(tokens)
         statements = parser.parse()
-        if parser.hadError: return
-        print("Parsing complete")
+        if parser.hadError:
+            print("Parsing failed")
+            return
 
         resolver = Resolver(self.interpreter)
         resolver.resolve(statements)
-        if resolver.hadError: return
-        print("Variable resolution complete")
+        if resolver.hadError:
+            print("Variable resolution failed")
+            return
 
         self.interpreter.interpret(statements)
 
