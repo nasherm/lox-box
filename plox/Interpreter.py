@@ -1,3 +1,4 @@
+from os import environ
 from plox.LoxInstance import LoxInstance
 from .LoxFunction import LoxFunction
 from .LoxCallable import LoxCallable
@@ -79,12 +80,17 @@ class Interpreter(ExprVisitor, StmtVisitor):
             if not isinstance(superclass, LoxClass):
                 self.runtimeError(stmt.superclass.name, "Superclass must be a class")
         self.environment.define(stmt.name.lexeme, (not None))
+        if stmt.superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
         methods: dict[str, LoxFunction] = dict()
         for method in stmt.methods:
             function = LoxFunction(method, self.environment,
                 (method.name.lexeme == 'init'))
             methods[method.name.lexeme] = function
         klass = LoxClass(stmt.name.lexeme, superclass, methods)
+        if superclass is not None:
+            self.environment = self.environment.enclosing
         self.environment.assign(stmt.name, klass)
 
     def visitGetExpr(self, expr: Get):
@@ -100,6 +106,15 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = self.evaluate(expr.value)
         object.set(expr.name, value)
         return value
+
+    def visitSuperExpr(self, expr: Super):
+        distance = self.locals.get(expr)
+        superclass = self.environment.getAt(distance, "super")
+        obj = self.environment.getAt(distance-1, "this")
+        method = superclass.findMethod(expr.method.lexeme)
+        if method is None:
+            self.runtimeError(expr.method, f'Undefined property {expr.method.lexeme}')
+        return method.bind(obj)
 
     def visitThisExpr(self, expr: This):
         return self.lookupVariable(expr.keyword, expr)

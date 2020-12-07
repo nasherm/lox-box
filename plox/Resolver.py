@@ -12,7 +12,8 @@ class FunctionType(Enum):
 
 class ClassType(Enum):
     NONE=1,
-    CLASS=2
+    CLASS=2,
+    SUBCLASS=3
 
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
@@ -62,7 +63,11 @@ class Resolver(ExprVisitor, StmtVisitor):
             and stmt.name.lexeme == stmt.superclass.name.lexeme:
             self.error(stmt.superclass.name, "A class can't inherit from itself")
         if stmt.superclass is not None:
+            self.currentClass = ClassType.SUBCLASS
             self.resolve(stmt.superclass)
+        if stmt.superclass is not None:
+            self.beginScope()
+            self.scopes[-1]["super"] = True
         self.beginScope()
         self.scopes[-1]["this"] = True
         for method in stmt.methods:
@@ -71,6 +76,8 @@ class Resolver(ExprVisitor, StmtVisitor):
                 declaration = FunctionType.INITIALIZER
             self.resolveFunction(method, declaration)
         self.endScope()
+        if stmt.superclass is not None:
+            self.endScope()
         self.currentClass = enclosingClass
 
     def visitGetExpr(self, expr: Get):
@@ -79,6 +86,13 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visitSetExpr(self, expr: Set):
         self.resolve(expr.value)
         self.resolve(expr.object)
+
+    def visitSuperExpr(self, expr: Super):
+        if self.currentClass == ClassType.NONE:
+            self.error(expr.keyword, "Can't use super outside of a class")
+        elif self.currentClass != ClassType.SUBCLASS:
+            self.error(expr.keyword, "Can't use 'super' in a class with no superclass")
+        self.resolveLocal(expr, expr.keyword)
 
     def visitThisExpr(self, expr: This):
         if self.currentClass == ClassType.NONE:

@@ -271,6 +271,11 @@ class Parser:
         if self.match(TokenType.NIL): return Literal(None)
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
+        if self.match(TokenType.SUPER):
+            keyword = self.previous()
+            self.consume(TokenType.DOT, "Expected '.' after 'super'")
+            method = self.consume(TokenType.IDENTIFIER, "Expect superclass method name")
+            return Super(keyword, method)
         if self.match(TokenType.THIS):
             return This(self.previous())
         if self.match(TokenType.IDENTIFIER):
