@@ -22,8 +22,9 @@ class Block(Stmt):
 		return visitor.visitBlockStmt(self)
 
 class Class(Stmt):
-	def __init__(self,name:Token, methods:List):
+	def __init__(self,name:Token, superclass:Variable, methods:List):
 		self.name = name
+		self. superclass =  superclass
 		self. methods =  methods
 	def accept(self, visitor:StmtVisitor):
 		return visitor.visitClassStmt(self)

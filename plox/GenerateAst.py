@@ -1,10 +1,10 @@
 class GenerateAst:
     def __init__(self, args=None):
-        import os
+        from os import path
         if args:
             self.outputDir = args
             return
-        self.outputDir = os.path.dirname(os.path.realpath(__file__))
+        self.outputDir = path.dirname(path.realpath(__file__))
 
     def run(self):
         self.defineAst(
@@ -27,7 +27,7 @@ class GenerateAst:
             "Stmt",
             [
                 "Block      ; statements:List[Stmt]",
-                "Class      ; name:Token, methods:List",
+                "Class      ; name:Token, superclass:Variable, methods:List",
                 "Expression ; expression:Expr",
                 "If         ; condition:Expr, thenBranch:Stmt, elseBranch:Stmt",
                 "Function   ; name:Token, params:List[Token], body:List[Stmt]",
@@ -40,8 +40,8 @@ class GenerateAst:
         )
 
     def stripWhitespace(self, s: str):
-        import re
-        return re.sub('[s+]','', s)
+        from re import sub
+        return sub('[s+]','', s)
 
     def defineAst(self, baseName: str, types: list, imports=list()):
         path = f'{self.outputDir}/{baseName}.py'

@@ -4,9 +4,10 @@ from .LoxCallable import LoxCallable
 from . import LoxInstance
 
 class LoxClass(LoxCallable):
-    def __init__(self, name:str, methods:Dict[str, LoxFunction]):
+    def __init__(self, name:str, superclass, methods:Dict[str, LoxFunction]):
         self.name = name
         self.methods = methods
+        self.superclass: LoxClass = superclass
 
     def __repr__(self):
         return f'<class {self.name}>'
@@ -25,4 +26,8 @@ class LoxClass(LoxCallable):
         return initializer.arity()
 
     def findMethod(self, name:str):
-        return self.methods.get(name)
+        method = self.methods.get(name)
+        if method is not None:
+            return method
+        if self.superclass is not None:
+            return self.superclass.findMethod(name)

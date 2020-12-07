@@ -32,12 +32,16 @@ class Parser:
 
     def classDeclaration(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect class name")
+        superclass = None
+        if self.match(TokenType.LESS):
+            self.consume(TokenType.IDENTIFIER, "Expect superclass name")
+            superclass = Variable(self.previous())
         self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body")
         methods = list()
         while (not self.check(TokenType.RIGHT_BRACE)) and (not self.isAtEnd()):
             methods.append(self.function("method"))
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body")
-        return Class(name, methods)
+        return Class(name, superclass, methods)
 
     def function(self, kind:str):
         name = self.consume(TokenType.IDENTIFIER, f'Expect {kind} name.')

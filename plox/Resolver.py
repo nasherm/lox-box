@@ -58,6 +58,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.currentClass = ClassType.CLASS
         self.declare(stmt.name)
         self.define(stmt.name)
+        if stmt.superclass is not None \
+            and stmt.name.lexeme == stmt.superclass.name.lexeme:
+            self.error(stmt.superclass.name, "A class can't inherit from itself")
+        if stmt.superclass is not None:
+            self.resolve(stmt.superclass)
         self.beginScope()
         self.scopes[-1]["this"] = True
         for method in stmt.methods:

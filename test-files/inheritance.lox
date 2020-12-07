@@ -1,0 +1,8 @@
+class Doughnut {
+    cook(){
+        print "Fill with jelly";
+    }
+}
+
+class JellyDoughnut < Doughnut{}
+JellyDoughnut().cook();
