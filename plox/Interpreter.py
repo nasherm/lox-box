@@ -69,14 +69,15 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.evaluate(stmt.expression)
 
     def visitFunctionStmt(self, stmt: Function):
-        function = LoxFunction(stmt, self.environment)
+        function = LoxFunction(stmt, self.environment, False)
         self.environment.define(stmt.name.lexeme, function)
 
     def visitClassStmt(self, stmt: Class):
         self.environment.define(stmt.name.lexeme, (not None))
         methods: dict[str, LoxFunction] = dict()
         for method in stmt.methods:
-            function = LoxFunction(method, self.environment)
+            function = LoxFunction(method, self.environment,
+                (method.name.lexeme == 'init'))
             methods[method.name.lexeme] = function
         klass = LoxClass(stmt.name.lexeme, methods)
         self.environment.assign(stmt.name, klass)
@@ -94,6 +95,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = self.evaluate(expr.value)
         object.set(expr.name, value)
         return value
+
+    def visitThisExpr(self, expr: This):
+        return self.lookupVariable(expr.keyword, expr)
 
     def visitIfStmt(self, stmt: If):
         eval_result = self.evaluate(stmt.condition)

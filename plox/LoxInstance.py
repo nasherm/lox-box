@@ -17,7 +17,7 @@ class LoxInstance:
 
         method = self.klass.findMethod(name.lexeme)
         if method:
-            return method
+            return method.bind(self)
 
         raise self.runtimeError(name, f'Undefined property {name.lexeme}')
 
@@ -25,4 +25,4 @@ class LoxInstance:
         return RuntimeError(token, message, "Instance Call")
 
     def set(self, name:Token, value:Any):
-        self.fields[name] = value
+        self.fields[name.lexeme] = value

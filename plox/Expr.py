@@ -11,6 +11,7 @@ class ExprVisitor:
 	def visitLiteralExpr(self,expr:Expr): pass
 	def visitLogicalExpr(self,expr:Expr): pass
 	def visitSetExpr(self,expr:Expr): pass
+	def visitThisExpr(self,expr:Expr): pass
 	def visitUnaryExpr(self,expr:Expr): pass
 	def visitVariableExpr(self,expr:Expr): pass
 	def visitAssignExpr(self,expr:Expr): pass
@@ -65,6 +66,12 @@ class Set(Expr):
 		self. value =  value
 	def accept(self, visitor:ExprVisitor):
 		return visitor.visitSetExpr(self)
+
+class This(Expr):
+	def __init__(self,keyword:Token):
+		self.keyword = keyword
+	def accept(self, visitor:ExprVisitor):
+		return visitor.visitThisExpr(self)
 
 class Unary(Expr):
 	def __init__(self,operator:Token, right:Expr):

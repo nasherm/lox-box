@@ -7,13 +7,19 @@ from enum import Enum
 class FunctionType(Enum):
     NONE = 1,
     FUNCTION = 2,
-    METHOD=3
+    METHOD=3,
+    INITIALIZER=4
+
+class ClassType(Enum):
+    NONE=1,
+    CLASS=2
 
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
         self.scopes: List[dict[str, bool]] = []
         self.currentFunction = FunctionType.NONE
+        self.currentClass = ClassType.NONE
         self.hadError = False
 
     def visitBlockStmt(self, stmt: Block):
@@ -48,10 +54,19 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolveFunction(stmt, FunctionType.FUNCTION)
 
     def visitClassStmt(self, stmt: Class):
+        enclosingClass = self.currentClass
+        self.currentClass = ClassType.CLASS
         self.declare(stmt.name)
         self.define(stmt.name)
+        self.beginScope()
+        self.scopes[-1]["this"] = True
         for method in stmt.methods:
-            self.resolveFunction(method, FunctionType.METHOD)
+            declaration = FunctionType.METHOD
+            if method.name.lexeme == 'init':
+                declaration = FunctionType.INITIALIZER
+            self.resolveFunction(method, declaration)
+        self.endScope()
+        self.currentClass = enclosingClass
 
     def visitGetExpr(self, expr: Get):
         self.resolve(expr.object)
@@ -59,6 +74,12 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visitSetExpr(self, expr: Set):
         self.resolve(expr.value)
         self.resolve(expr.object)
+
+    def visitThisExpr(self, expr: This):
+        if self.currentClass == ClassType.NONE:
+            self.error(expr.keyword, "Can't use 'this' outside of class")
+            return
+        self.resolveLocal(expr, expr.keyword)
 
     def resolveFunction(self, stmt: Function, type: FunctionType):
         enclosingFunction = self.currentFunction
@@ -85,8 +106,9 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visitReturnStmt(self, stmt: Return):
         if self.currentFunction == FunctionType.NONE:
             self.error(stmt.keyword, "Can't return from top-level")
-
         if stmt.value:
+            if self.currentFunction == FunctionType.INITIALIZER:
+                self.error(stmt.keyword, "Can't return a value from an initializer")
             self.resolve(stmt.value)
 
     def visitWhileStmt(self, stmt: While):
