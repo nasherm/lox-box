@@ -12,7 +12,7 @@ or use the REPL
 
     ./plox.py
 
-## Golox (status: building)
-This is a interpreter/bytecode VM for Lox written in Go
+## Rox (status: building)
+This is a interpreter/bytecode VM for Lox written in Rust
 
 

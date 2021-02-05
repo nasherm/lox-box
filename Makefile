@@ -1,11 +1,24 @@
-ploxDir = plox
-ploxSrc = $(ploxDir)/$(wildcard *.py)
+# plox
+PLOX_SRC = plox/$(wildcard *.py)
 
 .PHONY: plox
-plox:
+plox: $(PLOX_SRC)
 	./plox.py
 
-goSrc = golox
+# Golox
+WORKDIR = $(shell pwd)
+GOLOX_DIR=golox
+GO_TARGET=$(WORKDIR)/$(GOLOX_DIR)/golox.bin
 
-golox:
-	make -f $(goSrc)/Makefile clean all
+golox: $(GOLOX_DIR)/*
+	cd $(GOLOX_DIR); go build  -o $(GO_TARGET)
+
+golox_fmt:
+	go fmt $(WORKDIR)/$(GOLOX_DIR)
+
+golox_run:
+	$(GO_TARGET)
+
+clean:
+	go clean $(WORKDIR)/$(GOLOX_DIR)	
+

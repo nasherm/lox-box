@@ -2,3 +2,5 @@
 target
 project
 __pycache__
+*.out
+*.bin
