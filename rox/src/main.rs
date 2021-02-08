@@ -1,3 +1,9 @@
+mod chunk;
+
 fn main() {
-    println!("Hello, world!");
+    let mut chunk = chunk::Chunk::new();
+    println!("Built chunk!");
+    chunk.write_chunk(chunk::OpCode::OpReturn);
+    println!("Wrote an opcode");
+    println!("{:?}", chunk)
 }
