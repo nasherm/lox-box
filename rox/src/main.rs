@@ -1,9 +1,9 @@
 mod chunk;
 
 fn main() {
-    let mut chunk = chunk::Chunk::new();
+    let mut chunk = chunk::chunk::Chunk::new();
     println!("Built chunk!");
-    chunk.write_chunk(chunk::OpCode::OpReturn);
+    chunk.write_chunk(chunk::chunk::OpCode::OpReturn);
     println!("Wrote an opcode");
-    println!("{:?}", chunk)
+    println!("{}", chunk)
 }

@@ -1,25 +1,34 @@
 use std::vec::Vec;
 use std::fmt;
+use crate::chunk::value;
 
 #[derive(Debug)]
 pub enum OpCode {
+    OpConstant,
     OpReturn,
 }
 
 #[derive(Debug)]
 pub struct Chunk {
-    code: Vec<OpCode>,
+    code: Vec<(u32, OpCode)>,
+    constants: value::ValueArray,
 }
 
 impl Chunk {
     pub fn new() -> Chunk {
         Chunk{
             code: Vec::new(),
+            constants: value::ValueArray::new(),
         }
     }
 
     pub fn write_chunk(&mut self, byte: OpCode){
-        self.code.push(byte);
+        let line_number = self.code.len()as u32  + 1;
+        self.code.push((line_number, byte))
+    }
+
+    pub fn add_constant(&mut self, value: value::Value) -> usize{
+        self.constants.write_value_array(value)
     }
 }
 
@@ -29,7 +38,7 @@ impl fmt::Display for Chunk {
         let mut results: Vec<fmt::Result>= Vec::new();
         results.push(write!(f, "===VM INSTR===\n"));
         for opcode in self.code.iter() {
-            results.push(opcode.fmt(f));
+            results.push(write!(f, "{:?}", opcode));
         }
 
         // Check for failures
@@ -37,11 +46,5 @@ impl fmt::Display for Chunk {
             Err(x) => Err(*x),
             _     => Ok(())
         })
-    }
-}
-
-impl fmt::Display for OpCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self)
     }
 }
