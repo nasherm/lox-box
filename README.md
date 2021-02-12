@@ -1,6 +1,7 @@
 My work done as I  read [Crafting Interpreters](https://craftinginterpreters.com/)
+The Lox specification can be found on the above link or directly [here](https://craftinginterpreters.com/appendix-ii.html)
 
-This consists of two parts
+This project consists of two parts
 
 ## Plox (status: complete)
 This is a compiler for Lox written in Python. It leverages the Python runtime
