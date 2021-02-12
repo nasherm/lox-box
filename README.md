@@ -1,6 +1,6 @@
 My work done as I  read [Crafting Interpreters](https://craftinginterpreters.com/)
 
-The Lox specification can be found in the above link or directly [here](https://craftinginterpreters.com/appendix-ii.html)
+The Lox specification can be found in the above link or directly [here](https://craftinginterpreters.com/appendix-i.html)
 
 This project consists of two parts
 
