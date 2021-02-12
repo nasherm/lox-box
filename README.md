@@ -4,10 +4,10 @@ This consists of two parts
 
 ## Plox (status: complete)
 This is a compiler for Lox written in Python. It leverages the Python runtime
-to allow for easily development of an interpreter for Lox.
+to allow for easy development of an interpreter for Lox.
 It's not highly performant as expected, and performs no optimisations.
 Main features include static analysis of programs, object-orientation suppport,
-and support for the whole Lox specification (OO, recursion, functions, state).
+and support for the whole Lox specification (OO, recursion, functions, state, ...).
 
 ### Usage
     ./plox.py <lox-script>
