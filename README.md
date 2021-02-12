@@ -20,7 +20,7 @@ or use the REPL
 
 ## Rox (status: building)
 This is a bytecode VM for Lox written in Rust. Following in the 
-tradition of other bytecode VMs such as the JVM, CPython, and LLVM, this leverages
+tradition of other bytecode VMs such as the JVM, and LLVM, this leverages
 the [three phase compiler model](https://www.aosabook.org/en/llvm.html). Written in Rust, it uses the features
 of the development language to allow for well typed, memory safe development. 
 This compiler does perform optimisations, and supports garbage collection.
