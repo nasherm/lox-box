@@ -1,34 +1,60 @@
 use std::vec::Vec;
+use std::rc::Rc;
 
 use crate::chunk::chunk;
 
 pub struct VM {
-    chunk : chunk::Chunk,
-    ip: chunk::Code,
+    chunk : Rc<chunk::Chunk>,
+    ip: Rc<chunk::Code>,
+    instruction_index: usize,
 }
 
 impl VM {
-    pub fn new() -> VM{
+    pub fn new(chunk: chunk::Chunk) -> VM{
         VM {
-            chunk: chunk::Chunk::new(),
-            ip: Vec::new(),
+            ip: Rc::new(chunk.code()),
+            chunk: Rc::new(chunk),
+            instruction_index: 0,
         }
     }
 
-    pub fn interpret(&mut self, chunk: chunk::Chunk) -> InterpretResult {
-        self.ip = chunk.code();
-        self.chunk = chunk;
-        self.run()
+    fn read_byte(&mut self) -> (u32, chunk::OpCode) {
+        self.instruction_index += 1;
+        self.ip[self.instruction_index - 1]
     }
 
-    fn run(&self) -> InterpretResult {
-        InterpretResult::InterpretOk
+    // Triggers instruction execution
+    pub fn interpret(&mut self) -> InterpretResult {
+        let mut status = InterpretResult::Continue;
+        let mut instruction;
+        while (status == InterpretResult::Continue) && (self.instruction_index < self.ip.len()){
+            instruction = self.read_byte();
+            status = match instruction {
+                (_, chunk::OpCode::Constant) =>
+                {
+                    match self.read_byte() {
+                        (_, chunk::OpCode::Undefined(x)) =>
+                        {
+                            let value = self.chunk.get_value(x);
+                            println!("{:?}", value);
+                            InterpretResult::Continue
+                        },
+                        _ => InterpretResult::RuntimeError,
+                    }
+                },
+
+                (_, chunk::OpCode::Return) => InterpretResult::Continue,
+                _ => InterpretResult::RuntimeError,
+            }
+        }
+        status
     }
 }
 
-
+#[derive(PartialEq)]
 pub enum InterpretResult{
-    InterpretOk,
-    InterpretCompileError,
-    InterpretRuntimeError,
+    Ok,
+    CompileError,
+    RuntimeError,
+    Continue,
 }

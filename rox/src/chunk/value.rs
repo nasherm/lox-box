@@ -19,4 +19,8 @@ impl ValueArray {
         self.values.push(value);
         self.values.len() - 1
     }
+
+    pub fn get_value(&self, value_index: usize) -> Value {
+        self.values[value_index]
+    }
 }
