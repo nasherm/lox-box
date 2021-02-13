@@ -2,15 +2,17 @@ use std::vec::Vec;
 use std::fmt;
 use crate::chunk::value;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum OpCode {
     OpConstant,
     OpReturn,
 }
 
+pub type Code = Vec<(u32, OpCode)>;
+
 #[derive(Debug)]
 pub struct Chunk {
-    code: Vec<(u32, OpCode)>,
+    code: Code,
     constants: value::ValueArray,
 }
 
@@ -30,10 +32,17 @@ impl Chunk {
     pub fn add_constant(&mut self, value: value::Value) -> usize{
         self.constants.write_value_array(value)
     }
+
+    pub fn dissasemble(&self) {
+        println!("{}", self)
+    }
+
+    pub fn code(&self) -> Code {
+        self.code.clone()
+    }
 }
 
 impl fmt::Display for Chunk {
-    // TODO: find why this overflows the stack
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut results: Vec<fmt::Result>= Vec::new();
         results.push(write!(f, "===VM INSTR===\n"));
