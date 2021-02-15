@@ -1,5 +1,6 @@
 mod chunk;
 mod vm;
+mod utils;
 #[macro_use]
 extern crate lazy_static;
 

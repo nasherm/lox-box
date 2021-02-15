@@ -58,11 +58,6 @@ impl fmt::Display for Chunk {
         for opcode in self.code.iter() {
             results.push(write!(f, "{:?}", opcode));
         }
-
-        // Check for failures
-        results.iter().fold(Ok(()), |_, val| match val {
-            Err(x) => Err(*x),
-            _     => Ok(())
-        })
+        crate::utils::util::fold_results(results)
     }
 }
