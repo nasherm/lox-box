@@ -7,6 +7,11 @@ pub enum OpCode {
     Constant,
     Return,
     Undefined(usize),
+    Negate,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
 }
 
 pub type Code = Vec<(u32, OpCode)>;
