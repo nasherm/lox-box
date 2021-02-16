@@ -2,6 +2,8 @@ use std::vec::Vec;
 use std::rc::Rc;
 use std::env;
 use std::fmt;
+use std::option::Option;
+use std::string::String;
 
 use crate::chunk::chunk;
 use crate::chunk::value;
@@ -44,24 +46,73 @@ impl VM {
             }
             instruction = self.read_byte();
             status = match instruction {
-                (_, chunk::OpCode::Constant) =>
-                {
-                    match self.read_byte() {
-                        (_, chunk::OpCode::Undefined(x)) =>
-                        {
-                            let value = self.chunk.get_value(x);
-                            println!("{:?}", value);
-                            InterpretResult::Continue
-                        },
-                        _ => InterpretResult::RuntimeError,
-                    }
-                },
-
-                (_, chunk::OpCode::Return) => InterpretResult::Continue,
-                _ => InterpretResult::RuntimeError,
+                (_, chunk::OpCode::Negate)   => self.handle_negate(),
+                (_, chunk::OpCode::Constant) => self.handle_constant(),
+                (_, chunk::OpCode::Add)      => self.handle_binop(&|x, y| x + y),
+                (_, chunk::OpCode::Subtract) => self.handle_binop(&|x, y| x - y),
+                (_, chunk::OpCode::Multiply) => self.handle_binop(&|x, y| x*y),
+                (_, chunk::OpCode::Divide)   => self.handle_binop(&|x, y| x/y),
+                (_, chunk::OpCode::Return)   => self.handle_return(),
+                _ => InterpretResult::RuntimeError(None),
             }
         }
         status
+    }
+
+    fn push(&mut self, value: value::Value) -> Result<(), ()> {
+        self.stack.push(value)
+    }
+
+    fn pop(&mut self) -> Option<value::Value>{
+        self.stack.pop()
+    }
+
+    fn handle_negate(&mut self) -> InterpretResult {
+        match self.pop() {
+            Some(x) => {
+                let result = self.push( -x);
+                if result.is_err() {
+                    return InterpretResult::RuntimeError(Some(String::from("Failure push negative to stack")))
+                }
+                InterpretResult::Continue
+            },
+            _ => InterpretResult::RuntimeError(Some(String::from("Failure popping from empty stack"))),
+        }
+    }
+
+    fn handle_constant(&mut self) -> InterpretResult {
+        match self.read_byte() {
+            (_, chunk::OpCode::Undefined(x)) =>
+            {
+                let value = self.chunk.get_value(x);
+                if self.push(value).is_err(){
+                    return InterpretResult::RuntimeError(Some(String::from("Failure pushing constant to stack")));
+                }
+                InterpretResult::Continue
+            },
+            _ => InterpretResult::RuntimeError(Some(String::from("No value associated with constant: FATAL"))),
+        }
+    }
+
+    fn handle_return(&mut self) -> InterpretResult {
+        match self.pop() {
+            Some(x) => println!("{}", x),
+            _ => (),
+        };
+        InterpretResult::Continue
+    }
+
+    fn handle_binop(&mut self, func: &dyn Fn(value::Value, value::Value) -> value::Value) -> InterpretResult {
+        let y = self.pop();
+        let x = self.pop();
+        let result = match (x, y) {
+            (Some(x), Some(y)) => self.push(func(x, y)),
+            _ => Err(()),
+        };
+        if result.is_err() {
+            return InterpretResult::RuntimeError(Some(String::from("Failed to push result of binop")))
+        }
+        InterpretResult::Continue
     }
 }
 
@@ -69,7 +120,7 @@ impl VM {
 pub enum InterpretResult{
     Ok,
     CompileError,
-    RuntimeError,
+    RuntimeError(Option<String>),
     Continue,
 }
 
