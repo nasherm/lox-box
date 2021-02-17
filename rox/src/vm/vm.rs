@@ -114,6 +114,10 @@ impl VM {
         }
         InterpretResult::Continue
     }
+
+    pub fn stack_top(&self) -> Option<&value::Value> {
+        self.stack.peek()
+    }
 }
 
 #[derive(Debug,PartialEq)]
@@ -133,5 +137,30 @@ impl fmt::Display for VM {
         results.push(write!(f, "NEXT_INSTR: {:?}, INSTRUCTION_INDEX: {:?}", self.ip, self.instruction_index));
         results.push(write!(f, "STACK: \n {:?}", self.stack));
         crate::utils::util::fold_results(results)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_handle_binop() {
+        use crate::vm::vm::VM;
+        use crate::chunk::chunk;
+        let mut chunk = chunk::Chunk::new();
+        chunk.add_constant( 1.2 as f64);
+        chunk.add_constant(3.4 as f64);
+        chunk.write_chunk(chunk::OpCode::Add); // %1 = 1.2 + 3.4
+        chunk.add_constant(5.6 as f64);
+        chunk.write_chunk(chunk::OpCode::Divide); // %2 = %1 / 5.6
+        chunk.add_constant(3.0 as f64);
+        chunk.write_chunk(chunk::OpCode::Multiply); // %3 = %2 * 3.0
+        chunk.add_constant(9.2 as f64);
+        chunk.write_chunk(chunk::OpCode::Subtract); // %4 = %3 - 9.2
+        chunk.write_chunk(chunk::OpCode::Negate); // %5 = -%4
+        let mut vm = VM::new(chunk);
+        vm.interpret();
+        let final_result = vm.stack_top();
+        let expected_result: f64 = -((((1.2 + 3.4)/5.6)*3.0) - 9.2);
+        assert_eq!(final_result, Some(&expected_result));
     }
 }
