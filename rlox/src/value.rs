@@ -2,6 +2,10 @@ use std::vec::Vec;
 
 pub type Value = f64;
 
+pub fn print_value(value: Value) -> () {
+    println!("{:?}", value)
+}
+
 // Constants are stored in a value array,
 // and we access said constants by being aware
 // of their index
@@ -27,4 +31,5 @@ impl ValueArray {
     pub fn get_val(&self, index: usize) -> Value{
         self.values[index]
     }
+
 }

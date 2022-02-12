@@ -7,6 +7,7 @@ pub enum OpCode{
     Byte(u8),
     OpConstant,
     OpReturn,
+    OpNegate,
 }
 
 // Chunks define our bytecode to execute in a
