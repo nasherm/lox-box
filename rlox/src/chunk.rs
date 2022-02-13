@@ -8,6 +8,10 @@ pub enum OpCode{
     OpConstant,
     OpReturn,
     OpNegate,
+    OpAdd,
+    OpSub,
+    OpMult,
+    OpDiv,
 }
 
 // Chunks define our bytecode to execute in a

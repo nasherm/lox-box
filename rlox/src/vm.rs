@@ -44,6 +44,12 @@ impl<'a> Vm<'a> {
         self.chunk.get_constant_val(self.deref_ip())
     }
 
+    fn binop(&mut self, f: &dyn Fn(Value, Value) -> Value){
+        let v2 = self.pop();
+        let v1 = self.pop();
+        self.push(f(v1, v2));
+    }
+
     pub fn run(&mut self) -> InterpretResult {
         loop {
             if cfg!(debug_assertions) {
@@ -63,9 +69,13 @@ impl<'a> Vm<'a> {
                     self.push(val);
                 },
                 OpCode::OpNegate => {
-                     let x = -self.pop();
-                     self.push(x);
+                    let x = -self.pop();
+                    self.push(x);
                 },
+                OpCode::OpAdd => self.binop(&mut |x, y| x + y),
+                OpCode::OpSub => self.binop(&mut |x, y| x - y),
+                OpCode::OpMult => self.binop(&mut |x, y| x * y),
+                OpCode::OpDiv => self.binop(&mut |x, y| x / y),
                 _ => {
                     print_value(self.pop());
                     return InterpretResult::InterpretOk
