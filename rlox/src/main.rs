@@ -2,23 +2,19 @@ mod chunk;
 mod debug;
 mod value;
 mod vm;
+mod common;
+
+use std::env;
 
 fn main() {
-    let mut chunk = chunk::Chunk::init();
-    let mut constant = chunk.add_constant(1.2);
-    chunk.write_chunk(chunk::OpCode::OpConstant, 123);
-    chunk.write_chunk(chunk::OpCode::Byte(constant as u8), 123);
-    chunk.write_chunk(chunk::OpCode::OpNegate, 123);
-    constant = chunk.add_constant(3.4);
-    chunk.write_chunk(chunk::OpCode::OpConstant, 123);
-    chunk.write_chunk(chunk::OpCode::Byte(constant as u8), 123);
-    chunk.write_chunk(chunk::OpCode::OpAdd, 123);
-    constant = chunk.add_constant(5.6);
-    chunk.write_chunk(chunk::OpCode::OpConstant, 123);
-    chunk.write_chunk(chunk::OpCode::Byte(constant as u8), 123);
-    chunk.write_chunk(chunk::OpCode::OpDiv, 123);
-    chunk.write_chunk(chunk::OpCode::OpReturn, 123);
-    debug::disassemble_chunk(&chunk, String::from("My Chunk"));
-    let mut vm = vm::Vm::init(&mut chunk);
-    vm.run();
+    let args: Vec<String> = env::args().collect();
+
+    let _ = match args.len() {
+        1 => common::repl(),
+        2 => common::interpret_file(&args[0]),
+        _ => {
+            println!("Usage: ./rlox <input_file>");
+            Ok(())
+        }
+    };
 }

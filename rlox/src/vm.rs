@@ -85,3 +85,30 @@ impl<'a> Vm<'a> {
     }
 
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn simple_chunk() {
+        use crate::chunk::{Chunk, OpCode};
+        use crate::vm::Vm;
+        let mut chunk = Chunk::init();
+        let mut constant = chunk.add_constant(1.2);
+        chunk.write_chunk(OpCode::OpConstant, 123);
+        chunk.write_chunk(OpCode::Byte(constant as u8), 123);
+        chunk.write_chunk(OpCode::OpNegate, 123);
+        constant = chunk.add_constant(3.4);
+        chunk.write_chunk(OpCode::OpConstant, 123);
+        chunk.write_chunk(OpCode::Byte(constant as u8), 123);
+        chunk.write_chunk(OpCode::OpAdd, 123);
+        constant = chunk.add_constant(5.6);
+        chunk.write_chunk(OpCode::OpConstant, 123);
+        chunk.write_chunk(OpCode::Byte(constant as u8), 123);
+        chunk.write_chunk(OpCode::OpDiv, 123);
+        chunk.write_chunk(OpCode::OpReturn, 123);
+        let mut vm = Vm::init(&mut chunk);
+        vm.run();
+
+        // TODO: check execution results
+    }
+}
