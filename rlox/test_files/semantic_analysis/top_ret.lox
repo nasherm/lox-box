@@ -1,0 +1,5 @@
+return "at top level";
+
+fun pass() {
+    return;
+}
