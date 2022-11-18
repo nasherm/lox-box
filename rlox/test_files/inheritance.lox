@@ -1,0 +1,22 @@
+class Doughnut {
+    cook(){
+        print "Fill with jelly";
+    }
+}
+
+class JellyDoughnut < Doughnut{
+    cook(){
+        super.cook();
+        print "Add some glazing sugar";
+    }
+}
+
+class JellyCroissant < JellyDoughnut{
+    cook () {
+        super.cook();
+        print "Regret your decision";
+    }
+}
+
+JellyDoughnut().cook();
+JellyCroissant().cook();

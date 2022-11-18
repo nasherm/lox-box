@@ -1,8 +1,10 @@
 use std::io::{self, prelude::*, Write, BufReader};
 use std::fs::File;
+use crate::vm::{InterpretResult};
+use crate::compiler;
 
 
-pub fn repl() -> io::Result<()> {
+pub fn repl() -> Result<(), InterpretResult> {
     let mut line: String = String::new();
     let stdin = io::stdin();
 
@@ -14,20 +16,26 @@ pub fn repl() -> io::Result<()> {
         if line == "q" {
             break
         };
-        interpret(&line);
+        match interpret(&line) {
+            InterpretResult::InterpretOk=> (),
+            result => return Err(result),
+        };
     }
 
     Ok(())
 }
 
-fn interpret(s: &String) -> () {
-    ()
+fn interpret(s: &String) -> InterpretResult {
+    let compiler = compiler::Compiler::init(s);
+    compiler.compile()
 }
 
-pub fn interpret_file(s: &String) -> io::Result<()> {
-    let f = File::open(s)?;
+pub fn interpret_file(s: &String) -> Result<(), InterpretResult> {
+    let f = File::open(s).unwrap();
     let reader = BufReader::new(f);
-
-    let mut source = reader.lines();
-    Ok(())
+    let mut source = reader.lines().fold(String::new(), |acc, line| acc + &line.unwrap());
+    match interpret(&source) {
+        InterpretResult::InterpretOk => Ok(()),
+        result => Err(result),
+    }
 }
