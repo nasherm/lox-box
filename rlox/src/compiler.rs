@@ -8,11 +8,11 @@ pub struct Compiler {
 impl Compiler {
     pub fn init(source_code: &String) -> Self {
         Compiler {
-            scanner: Scanner::init(source_code),
+            scanner: Scanner::init(&source_code),
         }
     }
 
-    pub fn compile(self) -> InterpretResult {
+    pub fn compile(&mut self) -> InterpretResult {
         let mut line = -1;
         loop {
             let token = self.scanner.scan_token();
@@ -22,7 +22,8 @@ impl Compiler {
             } else {
                 print!("    | ");
             }
-            print!("{:?}  {:?}", token.token_type, token.string);
+            let token_chars = self.scanner.token_chars(token.length);
+            print!("{:?}  {:?}", token.token_type, token_chars);
             if token.token_type == TokenType::TOKEN_EOF {
                 break
             }

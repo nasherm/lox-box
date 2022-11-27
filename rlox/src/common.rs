@@ -26,7 +26,7 @@ pub fn repl() -> Result<(), InterpretResult> {
 }
 
 fn interpret(s: &String) -> InterpretResult {
-    let compiler = compiler::Compiler::init(s);
+    let mut compiler = compiler::Compiler::init(s);
     compiler.compile()
 }
 
