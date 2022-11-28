@@ -3,8 +3,7 @@ use crate::value::{ValueArray, Value};
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
-pub enum OpCode{
-    Byte(u8),
+pub enum OpCode{Byte(u8),
     OpConstant,
     OpReturn,
     OpNegate,
