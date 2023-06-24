@@ -1,4 +1,5 @@
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[allow(non_camel_case_types)]
 pub enum TokenType {
     // Single-character tokens.
     TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
@@ -30,6 +31,18 @@ pub struct Token {
     pub option_string: Option<String>,
 }
 
+impl Token {
+    pub fn init() -> Self {
+        Token {
+            token_type: TokenType::TOKEN_ERROR,
+            line: -1,
+            start: 0, 
+            length: 0, 
+            option_string: None,
+        } 
+    }
+}
+
 pub struct Scanner {
     source_code: Vec<char>,
     start: usize,
@@ -37,7 +50,7 @@ pub struct Scanner {
     line: i32,
 }
 
-static keyword_array:[(&str, TokenType);16] = [
+const keyword_array:[(&str, TokenType);16] = [
     ("and", TokenType::TOKEN_AND),
     ("class", TokenType::TOKEN_CLASS),
     ("else", TokenType::TOKEN_ELSE),

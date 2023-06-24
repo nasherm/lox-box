@@ -3,7 +3,8 @@ use crate::value::{ValueArray, Value};
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
-pub enum OpCode{Byte(u8),
+pub enum OpCode{
+    Byte(u8),
     OpConstant,
     OpReturn,
     OpNegate,
@@ -16,6 +17,7 @@ pub enum OpCode{Byte(u8),
 // Chunks define our bytecode to execute in a
 // VM. This wraps a certain state within the context
 // of execution
+#[derive(Clone)]
 pub struct Chunk {
     code: Vec<OpCode>,
     value_array: ValueArray,
