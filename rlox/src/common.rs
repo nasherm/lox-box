@@ -1,7 +1,9 @@
 use std::io::{self, prelude::*, Write, BufReader};
 use std::fs::File;
 use crate::vm::{InterpretResult};
-use crate::compiler;
+use crate::compiler::Compiler;
+use crate::chunk::{Chunk};
+use crate::vm::Vm;
 
 
 pub fn repl() -> Result<(), InterpretResult> {
@@ -26,8 +28,14 @@ pub fn repl() -> Result<(), InterpretResult> {
 }
 
 fn interpret(s: &String) -> InterpretResult {
-    let mut compiler = compiler::Compiler::init(s);
-    compiler.compile()
+    let chunk = Chunk::init();
+    let mut compiler = Compiler::init(s);
+    if !(compiler.compile(chunk)) {
+        return InterpretResult::InterpretCompilerError;
+    }
+    let mut vm = Vm::init(chunk);
+    
+    vm.run()
 }
 
 pub fn interpret_file(s: &String) -> Result<(), InterpretResult> {

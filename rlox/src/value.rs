@@ -9,6 +9,7 @@ pub fn print_value(value: Value) -> () {
 // Constants are stored in a value array,
 // and we access said constants by being aware
 // of their index
+#[derive(Clone)]
 pub struct ValueArray{
     values: Vec<Value>,
 }
