@@ -22,7 +22,7 @@ pub enum TokenType {
     TOKEN_ERROR, TOKEN_EOF
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub line: i32,
@@ -39,7 +39,7 @@ impl Token {
             start: 0, 
             length: 0, 
             option_string: None,
-        } 
+        }
     }
 }
 
