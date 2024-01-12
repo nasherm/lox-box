@@ -1,8 +1,10 @@
 use std::io::{self, prelude::*, Write, BufReader};
 use std::fs::File;
+use std::ops::{Deref, DerefMut};
 use crate::vm::{InterpretResult};
 use crate::compiler::Compiler;
 use crate::chunk::{Chunk};
+use crate::vm::InterpretResult::InterpretCompilerError;
 use crate::vm::Vm;
 
 
@@ -28,14 +30,18 @@ pub fn repl() -> Result<(), InterpretResult> {
 }
 
 fn interpret(s: &String) -> InterpretResult {
-    let chunk = Chunk::init();
     let mut compiler = Compiler::init(s);
-    if !(compiler.compile(chunk)) {
-        return InterpretResult::InterpretCompilerError;
+    if !(compiler.compile()) {
+        return InterpretCompilerError;
     }
-    let mut vm = Vm::init(chunk);
-    
-    vm.run()
+    match compiler.current_chunk()  {
+        Ok(mut chunk) =>  {
+            let mut chunk_inner = chunk.borrow_mut();
+            let mut vm = Vm::init(chunk_inner.deref_mut());
+            vm.run()
+       },
+       _ => InterpretCompilerError
+    }
 }
 
 pub fn interpret_file(s: &String) -> Result<(), InterpretResult> {
