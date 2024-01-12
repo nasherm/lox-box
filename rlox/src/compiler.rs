@@ -2,6 +2,7 @@ use std::ops::Deref;
 use crate::vm::InterpretResult;
 use crate::scanner::{Scanner, TokenType, Token};
 use crate::chunk::{Chunk, OpCode};
+use crate::value::Value;
 use std::{rc::Rc, cell::RefCell};
 
 struct Parser {
@@ -9,6 +10,21 @@ struct Parser {
     previous: Token,
     had_error: bool,
     panic_mode: bool,
+}
+
+#[derive(Debug)]
+enum Precedence {
+    PREC_NONE,
+    PREC_ASSIGNMENT,  // =
+    PREC_OR,          // or
+    PREC_AND,         // and
+    PREC_EQUALITY,    // == !=
+    PREC_COMPARISON,  // < > <= >=
+    PREC_TERM,        // + -
+    PREC_FACTOR,      // * /
+    PREC_UNARY,       // ! -
+    PREC_CALL,        // . ()
+    PREC_PRIMARY
 }
 
 pub struct Compiler {
@@ -67,6 +83,39 @@ impl Compiler {
         self.emit_return();
     }
 
+    fn unary(&mut self) -> () {
+        let op_type = self.parser.previous.token_type;
+        self.parse_precedence(Precedence::PREC_UNARY);
+        match op_type {
+            TokenType::TOKEN_MINUS => self.emit_byte(OpCode::OpNegate),
+            _ => (),
+        }
+    }
+
+    fn parse_precedence(&mut self, precedence: Precedence) -> () {
+
+    }
+
+    fn grouping(&mut self) -> () {
+        self.expression();
+        self.consume(TokenType::TOKEN_RIGHT_PAREN, "Expect ')' after expression");
+    }
+
+    fn number(&mut self) -> () {
+        let value = self.parser.previous.start;
+        self.emit_constant(value);
+    }
+
+    fn emit_constant(&mut self, value: usize) -> () {
+        let op_constant = self.make_constant(value as Value);
+        self.emit_bytes(OpCode::OpConstant, OpCode::Byte(op_constant));
+    }
+
+    fn make_constant(&mut self, value: Value) -> u8 {
+        let constant = self.compiling_chunk.borrow_mut().add_constant(value);
+        constant as u8
+    }
+
     fn emit_return(&mut self) -> () {
         self.emit_byte(OpCode::OpReturn);
     }
@@ -107,7 +156,7 @@ impl Compiler {
     }
 
     fn expression(&mut self) {
-        // TODO
+        self.parse_precedence(Precedence::PREC_ASSIGNMENT);
     }
 
     fn consume(&mut self, token_type: TokenType, message: &str) -> () {
