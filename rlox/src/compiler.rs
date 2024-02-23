@@ -4,6 +4,9 @@ use crate::scanner::{Scanner, TokenType, Token};
 use crate::chunk::{Chunk, OpCode};
 use crate::value::Value;
 use std::{rc::Rc, cell::RefCell};
+use std::collections::HashMap;
+use lazy_static::lazy_static;
+use std::ops::Add;
 
 struct Parser {
     current: Token, 
@@ -12,9 +15,10 @@ struct Parser {
     panic_mode: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, FromPrimitive)]
+#[allow(non_camel_case_types)]
 enum Precedence {
-    PREC_NONE,
+    PREC_NONE = 0,
     PREC_ASSIGNMENT,  // =
     PREC_OR,          // or
     PREC_AND,         // and
@@ -30,7 +34,18 @@ enum Precedence {
 pub struct Compiler {
     scanner: Scanner,
     parser: Parser, 
-    compiling_chunk: Rc<RefCell<Chunk>>,// TODO: make this a shared pointer
+    compiling_chunk: Rc<RefCell<Chunk>>,
+}
+
+type ParseFn = fn(&mut Compiler) -> ();
+struct ParseRule {
+    prefix: Option<ParseFn>,
+    infix: Option<ParseFn>,
+    prec: Precedence,
+}
+
+lazy_static! {
+    static ref PARSE_RULES: HashMap<TokenType, ParseRule> = Compiler::init_parse_rules();
 }
 
 impl Compiler {
@@ -46,6 +61,52 @@ impl Compiler {
             compiling_chunk: Rc::new(RefCell::new(Chunk::init())),
         }
     }
+
+    fn init_parse_rules() -> HashMap<TokenType, ParseRule> {
+        HashMap::from([
+            (TokenType::TOKEN_LEFT_PAREN, ParseRule { prefix: Some(Compiler::grouping), infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_RIGHT_PAREN, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_LEFT_BRACE, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_RIGHT_BRACE, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_COMMA, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_DOT, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_MINUS, ParseRule { prefix: Some(Compiler::unary), infix: Some(Compiler::binary), prec: Precedence::PREC_TERM }),
+            (TokenType::TOKEN_PLUS, ParseRule { prefix: None, infix: Some(Compiler::binary), prec: Precedence::PREC_TERM }),
+            (TokenType::TOKEN_SEMICOLON, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_SLASH, ParseRule { prefix: None, infix: Some(Compiler::binary), prec: Precedence::PREC_FACTOR }),
+            (TokenType::TOKEN_STAR, ParseRule { prefix: None, infix: Some(Compiler::binary), prec: Precedence::PREC_FACTOR }),
+            (TokenType::TOKEN_BANG, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_BANG_EQUAL, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_EQUAL, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_EQUAL_EQUAL, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_GREATER, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_GREATER_EQUAL, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_LESS, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_LESS_EQUAL, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_IDENTIFIER, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_STRING, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_NUMBER, ParseRule { prefix: Some(Compiler::number), infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_AND, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_CLASS, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_ELSE, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_FALSE, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_FOR, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_FUN, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_IF, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_NIL, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_OR, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_PRINT, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_RETURN, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_SUPER, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_THIS, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_TRUE, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_VAR, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_WHILE, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_ERROR, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+            (TokenType::TOKEN_EOF, ParseRule { prefix: None, infix: None, prec: Precedence::PREC_NONE }),
+        ])
+    }
+
 
     pub fn interpret(&mut self) -> InterpretResult {
         let mut line = -1;
@@ -92,8 +153,45 @@ impl Compiler {
         }
     }
 
-    fn parse_precedence(&mut self, precedence: Precedence) -> () {
+    fn get_rule(&self, token_type: TokenType) -> Option<&ParseRule> {
+        PARSE_RULES.get(&token_type)
+    }
 
+    fn binary(&mut self) -> () {
+        let op_type = self.parser.previous.token_type;
+        let parse_rule = self.get_rule(op_type);
+        match parse_rule {
+            Some(rule) => {
+                let prec = rule.prec as u32+ 1;
+                self.parse_precedence(num::FromPrimitive::from_u32(prec).unwrap())
+            },
+            _ => (),
+        };
+
+        match op_type {
+            TokenType::TOKEN_PLUS => self.emit_byte(OpCode::OpAdd),
+            TokenType::TOKEN_MINUS => self.emit_byte(OpCode::OpSub),
+            TokenType::TOKEN_STAR => self.emit_byte(OpCode::OpMult),
+            TokenType::TOKEN_SLASH => self.emit_byte(OpCode::OpDiv),
+            _ => panic!(), // Unreachable
+        }
+    }
+
+    fn parse_precedence(&mut self, precedence: Precedence) -> () {
+        self.advance();
+        let prefix_rule = self.get_rule(self.parser.previous.token_type).unwrap().prefix;
+        match prefix_rule {
+            Some(f) => f(self),
+            _ => panic!("Expected expression"),
+        }
+
+        while precedence <= self.get_rule(self.parser.current.token_type).unwrap().prec {
+            self.advance();
+            match self.get_rule(self.parser.previous.token_type).unwrap().infix {
+                Some(f) => f(self),
+                _ => panic!("Expected infix rule"),
+            }
+        }
     }
 
     fn grouping(&mut self) -> () {

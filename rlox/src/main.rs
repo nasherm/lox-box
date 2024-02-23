@@ -7,6 +7,9 @@ mod compiler;
 mod scanner;
 
 use std::env;
+extern crate num;
+#[macro_use]
+extern crate num_derive;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
