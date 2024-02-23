@@ -1,4 +1,5 @@
 use std::vec::Vec;
+use std::ops::Index;
 
 pub type Value = f64;
 
@@ -9,7 +10,7 @@ pub fn print_value(value: Value) -> () {
 // Constants are stored in a value array,
 // and we access said constants by being aware
 // of their index
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ValueArray{
     values: Vec<Value>,
 }
@@ -33,4 +34,12 @@ impl ValueArray {
         self.values[index]
     }
 
+}
+
+impl Index<usize> for ValueArray {
+    type Output = Value;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.values[index]
+    }
 }
