@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Hash, Eq)]
 #[allow(non_camel_case_types)]
 pub enum TokenType {
     // Single-character tokens.
@@ -50,7 +50,7 @@ pub struct Scanner {
     line: i32,
 }
 
-const keyword_array:[(&str, TokenType);16] = [
+const KEYWORD_ARRAY:[(&str, TokenType);16] = [
     ("and", TokenType::TOKEN_AND),
     ("class", TokenType::TOKEN_CLASS),
     ("else", TokenType::TOKEN_ELSE),
@@ -188,7 +188,7 @@ impl Scanner {
     }
 
     fn identifier_type(&mut self, start: usize) -> Option<(TokenType, usize)> {
-        for (keyword, token) in keyword_array.iter() {
+        for (keyword, token) in KEYWORD_ARRAY.iter() {
             if self.check_keyword(start, keyword.len() - 1, keyword, *token) {
                 return Some((*token, keyword.len()));
             }
