@@ -133,7 +133,7 @@ impl Compiler {
         self.expression();
         self.consume(TokenType::TOKEN_EOF, "Expect end of expression.");
         self.end_compiler();
-        !self.parser.had_error
+        self.parser.had_error
     }
 
     pub fn current_chunk(&self) -> Result<RefCell<Chunk>, Rc<RefCell<Chunk>>> {
@@ -200,18 +200,20 @@ impl Compiler {
     }
 
     fn number(&mut self) -> () {
-        let value = self.parser.previous.start;
-        self.emit_constant(value);
+        let value = match &self.parser.previous.option_string {
+            Some(num_string) => num_string.parse::<f64>().unwrap(),
+            _ => panic!(),
+        };
+        self.emit_constant(value as Value);
     }
 
-    fn emit_constant(&mut self, value: usize) -> () {
-        let op_constant = self.make_constant(value as Value);
-        self.emit_bytes(OpCode::OpConstant, OpCode::Byte(op_constant));
+    fn emit_constant(&mut self, value: Value) -> () {
+        let op_constant_index= self.make_constant(value);
+        self.emit_bytes(OpCode::OpConstant, OpCode::Byte(op_constant_index));
     }
 
     fn make_constant(&mut self, value: Value) -> u8 {
-        let constant = self.compiling_chunk.borrow_mut().add_constant(value);
-        constant as u8
+        self.compiling_chunk.borrow_mut().add_constant(value) as u8
     }
 
     fn emit_return(&mut self) -> () {
@@ -244,6 +246,7 @@ impl Compiler {
 
     fn advance(&mut self) -> () {
         self.parser.previous = self.parser.current.clone();
+        println!("{:?}", self.parser.previous);
         loop {
             self.parser.current = self.scanner.scan_token();
             if self.parser.current.token_type != TokenType::TOKEN_ERROR {
@@ -271,5 +274,147 @@ impl Compiler {
     fn emit_bytes(&mut self, byte1: OpCode, byte2: OpCode) -> () {
         self.emit_byte(byte1);
         self.emit_byte(byte2);
+    }
+
+    fn compare_chunk(&self, expected_code: &Vec<OpCode>, expected_value_array: &[f64]) -> () {
+        self.compiling_chunk.borrow().compare_code(expected_code, expected_value_array);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::chunk::OpCode;
+    use crate::compiler::Compiler;
+
+    #[test]
+    fn parse_unary() {
+        let source_code = String::from("-1");
+        let mut compiler = Compiler::init(&source_code);
+        let compile_result = compiler.compile();
+        if !compile_result {
+            panic!("Failed to parse this program: {:?}", source_code);
+        }
+
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpNegate,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64;1] = [1.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array);
+    }
+
+    #[test]
+    fn parse_binary_add() {
+        let source_code  = String::from("1 + 2");
+        let mut compiler = Compiler::init(&source_code);
+        let compile_result = compiler.compile();
+        if !compile_result {
+            panic!("Failed to parse this program: {:?}", source_code);
+        }
+
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpAdd,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64;2] = [1.0, 2.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array)
+    }
+
+    #[test]
+    fn parse_binary_sub() {
+        let source_code  = String::from("3 - 4");
+        let mut compiler = Compiler::init(&source_code);
+        let compile_result = compiler.compile();
+        if !compile_result {
+            panic!("Failed to parse this program: {:?}", source_code);
+        }
+
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpSub,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64;2] = [3.0, 4.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array)
+    }
+
+    #[test]
+    fn parse_binary_mult() {
+        let source_code  = String::from("5 * 6");
+        let mut compiler = Compiler::init(&source_code);
+        let compile_result = compiler.compile();
+        if !compile_result {
+            panic!("Failed to parse this program: {:?}", source_code);
+        }
+
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpMult,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64;2] = [5.0, 6.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array)
+    }
+
+    #[test]
+    fn parse_binary_div() {
+        let source_code  = String::from("7 / 8");
+        let mut compiler = Compiler::init(&source_code);
+        let compile_result = compiler.compile();
+        if !compile_result {
+            panic!("Failed to parse this program: {:?}", source_code);
+        }
+
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpDiv,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64;2] = [7.0, 8.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array)
+    }
+
+    #[test]
+    fn parse_binary_nested() {
+        let source_code = String::from("1 + (2 - (3 * (4 / 5) ) )");
+        let mut compiler = Compiler::init(&source_code);
+        let compile_result = compiler.compile();
+        if !compile_result {
+            panic!("Failed to parse this program: {:?}", source_code);
+        }
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpConstant,
+            OpCode::Byte(2),
+            OpCode::OpConstant,
+            OpCode::Byte(3),
+            OpCode::OpConstant,
+            OpCode::Byte(4),
+            OpCode::OpDiv,
+            OpCode::OpMult,
+            OpCode::OpSub,
+            OpCode::OpAdd,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64;5] = [1.0, 2.0, 3.0, 4.0, 5.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array)
     }
 }

@@ -228,35 +228,20 @@ impl Scanner {
         return self.make_token(TokenType::TOKEN_STRING);
     }
 
-    fn skip_whitespace(&mut self) -> () {
-        loop {
-            match self.peek() {
-                ' ' | '\r' | '\t' => { self.advance(); },
-                '\n' => {
-                    self.line += 1;
-                    self.advance();
-                },
-                // Treat comments as whitespace
-                '/' => {
-                    if self.peek_next() == '/' {
-                        while self.peek() != '\n' && !self.is_at_end() {
-                            self.advance();
-                        }
-                    } else {
-                        return;
-                    }
-                },
-                _ => return,
-            };
-        }
-    }
-
     fn advance(&mut self) -> char {
         self.current += 1;
         self.source_code[self.current - 1]
     }
 
     pub fn scan_token(&mut self) -> Token {
+        // Skip whitespace
+        loop {
+            if !self.peek().is_whitespace() {
+                break;
+            }
+            self.advance();
+        }
+
         self.start = self.current;
         if self.is_at_end() {
             return self.make_token(TokenType::TOKEN_EOF);
