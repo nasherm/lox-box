@@ -286,15 +286,18 @@ mod tests {
     use crate::chunk::OpCode;
     use crate::compiler::Compiler;
 
-    #[test]
-    fn parse_unary() {
-        let source_code = String::from("-1");
+    fn test_compiler_init_and_compile(source_code: String) -> Compiler {
         let mut compiler = Compiler::init(&source_code);
         let compile_result = compiler.compile();
         if !compile_result {
             panic!("Failed to parse this program: {:?}", source_code);
         }
+        compiler
+    }
 
+    #[test]
+    fn parse_unary() {
+        let compiler = test_compiler_init_and_compile(String::from("-1"));
         let expected_code: Vec<OpCode> = Vec::from([
             OpCode::OpConstant,
             OpCode::Byte(0),
@@ -307,12 +310,7 @@ mod tests {
 
     #[test]
     fn parse_binary_add() {
-        let source_code  = String::from("1 + 2");
-        let mut compiler = Compiler::init(&source_code);
-        let compile_result = compiler.compile();
-        if !compile_result {
-            panic!("Failed to parse this program: {:?}", source_code);
-        }
+        let compiler = test_compiler_init_and_compile(String::from("1+2"));
 
         let expected_code: Vec<OpCode> = Vec::from([
             OpCode::OpConstant,
@@ -328,12 +326,7 @@ mod tests {
 
     #[test]
     fn parse_binary_sub() {
-        let source_code  = String::from("3 - 4");
-        let mut compiler = Compiler::init(&source_code);
-        let compile_result = compiler.compile();
-        if !compile_result {
-            panic!("Failed to parse this program: {:?}", source_code);
-        }
+        let compiler = test_compiler_init_and_compile(String::from("3-4"));
 
         let expected_code: Vec<OpCode> = Vec::from([
             OpCode::OpConstant,
@@ -349,12 +342,7 @@ mod tests {
 
     #[test]
     fn parse_binary_mult() {
-        let source_code  = String::from("5 * 6");
-        let mut compiler = Compiler::init(&source_code);
-        let compile_result = compiler.compile();
-        if !compile_result {
-            panic!("Failed to parse this program: {:?}", source_code);
-        }
+        let compiler = test_compiler_init_and_compile(String::from("5*6"));
 
         let expected_code: Vec<OpCode> = Vec::from([
             OpCode::OpConstant,
@@ -370,13 +358,7 @@ mod tests {
 
     #[test]
     fn parse_binary_div() {
-        let source_code  = String::from("7 / 8");
-        let mut compiler = Compiler::init(&source_code);
-        let compile_result = compiler.compile();
-        if !compile_result {
-            panic!("Failed to parse this program: {:?}", source_code);
-        }
-
+        let compiler = test_compiler_init_and_compile(String::from("7 / 8"));
         let expected_code: Vec<OpCode> = Vec::from([
             OpCode::OpConstant,
             OpCode::Byte(0),
@@ -391,12 +373,7 @@ mod tests {
 
     #[test]
     fn parse_binary_nested() {
-        let source_code = String::from("1 + (2 - (3 * (4 / 5) ) )");
-        let mut compiler = Compiler::init(&source_code);
-        let compile_result = compiler.compile();
-        if !compile_result {
-            panic!("Failed to parse this program: {:?}", source_code);
-        }
+        let compiler = test_compiler_init_and_compile(String::from("1 + (2 - (3 * (4 / 5) ) )"));
         let expected_code: Vec<OpCode> = Vec::from([
             OpCode::OpConstant,
             OpCode::Byte(0),
@@ -416,5 +393,47 @@ mod tests {
         ]);
         let expected_value_array: [f64;5] = [1.0, 2.0, 3.0, 4.0, 5.0];
         compiler.compare_chunk(&expected_code, &expected_value_array)
+    }
+
+    #[test]
+    fn parse_nested_variant_one() {
+        let compiler = test_compiler_init_and_compile(String::from("1 + (2 - 3)  * 4"));
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpConstant,
+            OpCode::Byte(2),
+            OpCode::OpSub,
+            OpCode::OpConstant,
+            OpCode::Byte(3),
+            OpCode::OpMult,
+            OpCode::OpAdd,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64; 4] = [1.0, 2.0, 3.0, 4.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array);
+    }
+
+    #[test]
+    fn parse_nested_variant_two() {
+        let compiler = test_compiler_init_and_compile(String::from("(1 + 3 * 4) + 5"));
+        let expected_code: Vec<OpCode> = Vec::from([
+            OpCode::OpConstant,
+            OpCode::Byte(0),
+            OpCode::OpConstant,
+            OpCode::Byte(1),
+            OpCode::OpConstant,
+            OpCode::Byte(2),
+            OpCode::OpMult,
+            OpCode::OpAdd,
+            OpCode::OpConstant,
+            OpCode::Byte(3),
+            OpCode::OpAdd,
+            OpCode::OpReturn,
+        ]);
+        let expected_value_array: [f64; 4] = [1.0, 3.0, 4.0, 5.0];
+        compiler.compare_chunk(&expected_code, &expected_value_array);
     }
 }
