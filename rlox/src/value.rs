@@ -1,24 +1,112 @@
 use std::vec::Vec;
 use std::ops::Index;
+use std::fmt::{Debug, Formatter, Error};
+use std::ops::{Add, Sub, Mul, Div, Neg};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum ValueType {
     Bool,
     Nil,
     Num,
 }
+
+#[derive(Clone, Copy)]
 union ValueUnion {
     b: bool,
     f: f64,
 }
 
-#[derive(Debug, Copy, Clone)]
-struct Value {
+impl Debug for ValueUnion {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        unsafe {
+            write!(f, "ValueUnion [ byte_format: {:#08x}b : {:?}, f : {:} ]", self.f as u64, self.b, self.f)
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Value {
     _type: ValueType,
     _as: ValueUnion,
 }
 
+impl Add for Value {
+    // This overload only makes sense for numbers
+    type Output = Value;
+    fn add(self, rhs: Self) -> Self::Output {
+        assert!(self._type == ValueType::Num
+            && rhs._type == ValueType::Num);
+        unsafe {
+            Value {
+                _type: ValueType::Num,
+                _as: ValueUnion { f: self._as.f + rhs._as.f }
+            }
+        }
+    }
+}
+
+impl Sub for Value {
+    type Output = Value;
+    fn sub(self, rhs: Self) -> Self::Output {
+        assert!(self._type == ValueType::Num
+            && rhs._type == ValueType::Num);
+        unsafe {
+            Value {
+                _type: ValueType::Num,
+                _as: ValueUnion { f: self._as.f - rhs._as.f }
+            }
+        }
+    }
+}
+
+impl Mul for Value {
+    type Output = Value;
+    fn mul(self, rhs: Self) -> Self::Output {
+        assert!(self._type == ValueType::Num
+            && rhs._type == ValueType::Num);
+        unsafe {
+            Value {
+                _type: ValueType::Num,
+                _as: ValueUnion { f: self._as.f * rhs._as.f }
+            }
+        }
+    }
+}
+
+impl Div for Value {
+    type Output = Value;
+    fn div(self, rhs: Self) -> Self::Output {
+        assert!(self._type == ValueType::Num
+            && rhs._type == ValueType::Num);
+        unsafe {
+            Value {
+                _type: ValueType::Num,
+                _as: ValueUnion { f: self._as.f / rhs._as.f }
+            }
+        }
+    }
+}
+
+impl Neg for Value {
+    type Output = Value;
+    fn neg(self) -> Self::Output {
+        assert_eq!(self._type, ValueType::Num);
+        unsafe {
+            Value {
+                _type: ValueType::Num,
+                _as: ValueUnion { f : - self._as.f }
+            }
+        }
+    }
+}
+
 impl Value {
+    pub fn blank() -> Self{
+        Value {
+            _type: ValueType::Nil,
+            _as: ValueUnion { f: 0.0 }
+        }
+    }
     pub fn bool_val(value: f64) -> Self  {
         Value {
             _type: ValueType::Bool,
