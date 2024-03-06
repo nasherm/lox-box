@@ -1,7 +1,63 @@
 use std::vec::Vec;
 use std::ops::Index;
 
-pub type Value = f64;
+#[derive(Debug, Copy, Clone)]
+enum ValueType {
+    Bool,
+    Nil,
+    Num,
+}
+union ValueUnion {
+    b: bool,
+    f: f64,
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Value {
+    _type: ValueType,
+    _as: ValueUnion,
+}
+
+impl Value {
+    pub fn bool_val(value: f64) -> Self  {
+        Value {
+            _type: ValueType::Bool,
+            _as: ValueUnion { b: value > 0.0 }
+        }
+    }
+
+    pub fn nil_val(value: f64) -> Self {
+        Value {
+            _type: ValueType::Nil,
+            _as: ValueUnion { f: 0.0 }
+        }
+    }
+
+    pub fn num_val(val: f64) -> Self {
+        Value {
+            _type: ValueType::Num,
+            _as: ValueUnion { f: val }
+        }
+    }
+
+    pub fn as_bool(&self) -> bool {
+        // TODO: is there a nicer way of doing this without unsafe
+        unsafe {
+            self._as.b
+        }
+    }
+
+    pub fn as_num(&self) -> f64 {
+        unsafe {
+            self._as.f
+        }
+    }
+
+    pub fn is_bool(&self) -> bool { self._type == ValueType::Bool }
+    pub fn is_num(&self) -> bool { self._type == ValueType::Num }
+    pub fn is_nil(&self) -> bool { self._type == ValueType::Nil }
+}
+
 
 pub fn print_value(value: Value) -> () {
     println!("{:?}", value)
